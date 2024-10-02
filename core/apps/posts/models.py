@@ -2,6 +2,7 @@ from django.db import models
 from apps.users.models import User
 from django.utils import timezone
 
+
 class Post(models.Model):
     id = models.CharField(max_length=40, primary_key=True)
     author = models.ForeignKey(User, related_name='posts', on_delete=models.CASCADE)
