@@ -22,6 +22,7 @@ class Separement:
         
         return tag_response
 
+
     @staticmethod
     def unpacking_tags(tags: list[dict]) -> list[str]:
         print(tags, type(tags))
@@ -33,3 +34,4 @@ class Separement:
             prew_tags.append(i["label"])
         
         return prew_tags
+    
