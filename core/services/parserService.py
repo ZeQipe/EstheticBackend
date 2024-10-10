@@ -35,3 +35,15 @@ class Separement:
         
         return prew_tags
     
+    @staticmethod
+    def user_information(user):
+        user_data = {
+                "userId": user.id,
+                "subscribersAmount": user.subscribers.count(),
+                "avatar": user.avatar,
+                "firstName": user.first_name,
+                "lastName": user.last_name,
+                "userName": user.user_name,
+                }
+        
+        return user_data
