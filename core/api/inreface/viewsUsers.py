@@ -15,3 +15,9 @@ def usersRegistration(request):
         response = message[405]
         
     return JsonResponse(response, status=response.get("status", 200))
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def usersLogin(request):
+    pass
