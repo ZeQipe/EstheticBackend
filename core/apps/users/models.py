@@ -1,7 +1,10 @@
+from templates.answer import answer_dict as message
+from services.encriptionService import Encriptions
+from services.parserService import Separement
+from services.mediaService import Media
 from django.db import models
 from django.utils import timezone
 import re
-
 
 
 class User(models.Model):
@@ -13,12 +16,36 @@ class User(models.Model):
     password = models.TextField()
     avatar = models.TextField(unique=True, blank=True, null=True)
     tags_user = models.JSONField(default=list)
-    subscribers = models.ManyToManyField('self', symmetrical=False, related_name='following', blank=True)
+    subscribers = models.ManyToManyField("self", symmetrical=False, related_name="following", blank=True)
     created_at = models.DateTimeField(default=timezone.now)
 
     @staticmethod
     def create_user(data):
-        pass
+        # Валидация входных данных на создание пользователя
+        result_validate, message_validate = User.__validate_data(data, "create")
+
+        if not result_validate:
+            response = message[400].copy()
+            response["message"] = message_validate
+            return response
+        
+        try:
+            url = Media.save_media(data["media"], data["id"], "avatars")
+            User.objects.create(
+                                id=data["id"],
+                                first_name=data["first_name"],
+                                last_name=data["last_name"],
+                                user_name=data["user_name"],
+                                email=data["email"],
+                                password=Encriptions.encrypt_string(data["password"]),
+                                avatar=url,
+                                tags_user=Separement.unpacking_tags(data["tags_list"])
+                                )
+            
+            return message[200]
+
+        except Exception as error:
+            return message[500]
 
     
     @staticmethod

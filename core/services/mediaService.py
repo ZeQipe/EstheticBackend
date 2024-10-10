@@ -7,7 +7,7 @@ from django.conf import settings  # Импортируем настройки Dj
 
 class Media:
     # Имя хоста сохраняем в классе
-    HOSTNAME = "http://example.com"  # Это нужно будет подгрузить из .env
+    HOSTNAME = "http://localhost:8000"  # Это нужно будет подгрузить из .env
 
     # Константы для допустимых расширений
     ALLOWED_IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp']
@@ -29,7 +29,7 @@ class Media:
         
         if file_extension in cls.ALLOWED_IMAGE_EXTENSIONS:
             # Обрабатываем изображение
-            file_name = f'{user_id}{Encriptions.generate_string(8, False)}.webp'
+            file_name = f'{user_id}{Encriptions.generate_string(4, False)}.webp'
             save_path = os.path.join(settings.MEDIA_ROOT, 'webp', folder, file_name)
             
             # Создаём директорию, если её нет
