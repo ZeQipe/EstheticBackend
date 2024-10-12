@@ -76,3 +76,29 @@ def edit_user_data(request):
         result = message[500]
     
     return result
+
+
+def user_created_post_list(request, userID):
+    try:
+        offset = int(request.GET.get('offset', 0))
+    except ValueError:
+        offset = 0
+
+    try:
+        limit = int(request.GET.get('limit', 20))
+    except ValueError:
+        limit = 20
+    
+    try:
+        user = User.objects.get(id=userID)
+    except Exception as er:
+        response = message[404].copy()
+        response['message'] = "Not found User"
+        return response
+    
+    posts_user = user.posts.all()
+    count = user.posts.all().count()
+
+    response = Separement.formatted_posts(posts_user, offset, limit, count)
+    
+    return response

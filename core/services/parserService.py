@@ -66,3 +66,27 @@ class Separement:
             }
 
         return user_data["user"] if not status else user_data
+    
+
+    @staticmethod
+    def formatted_posts(result, start, end, amount) -> list[dict]:
+        """
+        Парсит результат и формирует список постов в нужном формате.
+        :param result: результат запроса
+        :param columns: список колонок
+        :return: список отформатированных постов
+        """
+        formatted_posts = {"postsAmount": amount,
+                        "posts": []}
+        
+        for post in result[start:start+end:]:
+            posted = {
+                "postId": post.id,
+                "contentType": post.type_content,
+                "url": Media.get_full_url(post.url),
+                "aspectRatio": post.aspect_ratio,
+            }
+
+            formatted_posts["posts"].append(posted)
+
+        return formatted_posts
