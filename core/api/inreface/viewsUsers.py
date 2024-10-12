@@ -53,3 +53,8 @@ def usersLogout(request):
         response = JsonResponse(message[405], status=405)
 
     return response
+
+
+@csrf_exempt
+def privateProfile(request):
+    pass
