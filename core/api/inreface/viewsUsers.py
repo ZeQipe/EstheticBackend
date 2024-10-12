@@ -79,4 +79,13 @@ def publicProfile(request, userID):
 
 @csrf_exempt
 def users(request):
-    pass
+    if request.method == "DELETE":                                      # Delete object
+        pass
+
+    elif request.method == "PUT":
+        response = edit_user_data(request)                           # Edit User Profile
+    
+    else:
+        response = message[405]
+
+    return JsonResponse(response, status=response.get("status", 200))

@@ -54,4 +54,5 @@ def user_profile(request, id_profile=""):
         return response["user"]
     
 
-        
+def edit_user_data(request):
+    pass
