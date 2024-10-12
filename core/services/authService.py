@@ -35,7 +35,8 @@ class Authorization:
         else:
             response = Separement.user_information(user)
             return response
-        
+
+
     @staticmethod
     def set_key_in_coockies(response, cookie_key):
         response.set_cookie(
@@ -48,6 +49,18 @@ class Authorization:
                             )
         return response
 
+
     @staticmethod
     def is_authorization(request):
-        pass
+        authKey = request.COOKIES.get("auth_key")
+        if not authKey:
+            return message[401]
+        
+        cookie_id = Encriptions.decrypt_string(authKey)
+        try:
+            user = User.objects.get(id=cookie_id)
+        
+        except Exception as er:
+            return message[404]
+        
+        return user
