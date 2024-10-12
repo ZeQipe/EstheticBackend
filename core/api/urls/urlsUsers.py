@@ -10,4 +10,5 @@ urlpatterns = [
     path("users/logout", viewsUsers.usersLogout, name="user_logout"),
     path("users/private-profile", viewsUsers.privateProfile, name="privateProfile"),
     path("users/public-profile/<str:userID>", viewsUsers.publicProfile, name="publicProfile"),
+    path("users/<str:userID>/created-posts", viewsUsers.usersCreatedPosts, name="userCreatedPosts"),
 ]

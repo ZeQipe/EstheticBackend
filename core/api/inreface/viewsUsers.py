@@ -89,3 +89,8 @@ def users(request):
         response = message[405]
 
     return JsonResponse(response, status=response.get("status", 200))
+
+
+@csrf_exempt
+def usersCreatedPosts(request, userID):
+    pass
