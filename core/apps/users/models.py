@@ -46,6 +46,10 @@ class User(models.Model):
 
         except Exception as error:
             return message[500]
+        
+    @staticmethod
+    def change_user(data):
+        pass
 
     
     @staticmethod

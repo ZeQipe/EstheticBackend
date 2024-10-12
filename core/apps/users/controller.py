@@ -28,7 +28,7 @@ def registration_users(request) -> dict:
         result = User.create_user(user_data)
 
     except Exception as er:
-        return message[500]
+        result = message[500]
     
     return result
 
@@ -55,4 +55,24 @@ def user_profile(request, id_profile=""):
     
 
 def edit_user_data(request):
-    pass
+    cookie_user = Authorization.is_authorization(request)
+    
+    if isinstance(cookie_user, dict):
+        return message[401]
+    
+    # Получение данных из запроса
+    put_data = MultiPartParser(request.META, request, request.upload_handlers).parse()
+    user_data = {'first_name': put_data[0].get("firstName"),
+                 'last_name': put_data[0].get("lastName"), 
+                 'user_name' : put_data[0].get("userName"),
+                 'tags_list': put_data[0].get("tags"),
+                 'media': put_data[1].get("avatar")
+                 }
+    
+    try:
+        result = User.change_user(user_data)
+
+    except Exception as er:
+        result = message[500]
+    
+    return result
