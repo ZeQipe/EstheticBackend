@@ -1,6 +1,6 @@
 from services.encriptionService import Encriptions
 from apps.users.models import User
-
+from services.mediaService import Media
 
 class Separement:
     @staticmethod
@@ -41,7 +41,7 @@ class Separement:
         user_data = {"user": {
                              "userId": user.id,
                              "subscribersAmount": user.subscribers.count(),
-                             "avatar": user.avatar,
+                             "avatar": Media.get_full_url(user.avatar),
                              "firstName": user.first_name,
                              "lastName": user.last_name,
                              "userName": user.user_name,

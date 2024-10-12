@@ -62,7 +62,7 @@ class User(models.Model):
             url = Media.save_media(data["media"], user.id, "avatars")
         
         except:
-            pass
+            url = False
         
         if data.get('first_name', False):
             user.first_name = data["first_name"]
