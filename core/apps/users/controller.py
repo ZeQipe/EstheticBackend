@@ -70,7 +70,7 @@ def edit_user_data(request):
                  }
     
     try:
-        result = User.change_user(user_data)
+        result = User.change_user(cookie_user, user_data)
 
     except Exception as er:
         result = message[500]

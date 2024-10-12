@@ -26,7 +26,6 @@ class Separement:
 
     @staticmethod
     def unpacking_tags(tags: list[dict]) -> list[str]:
-        print(tags, type(tags))
         if not tags:
             return []
         

@@ -48,8 +48,40 @@ class User(models.Model):
             return message[500]
         
     @staticmethod
-    def change_user(data):
-        pass
+    def change_user(user, data):
+        result_validate, message_validate = User.__validate_data(data, "edit")
+
+        if not result_validate:
+            response = message[400].copy()
+            response["message"] = message_validate
+            return response
+        
+        tags = Separement.unpacking_tags(data["tags_list"])
+
+        try:
+            url = Media.save_media(data["media"], user.id, "avatars")
+        
+        except:
+            pass
+        
+        if data.get('first_name', False):
+            user.first_name = data["first_name"]
+
+        if data.get('last_name', False):
+            user.last_name = data["last_name"]
+
+        if data.get('user_name', False):
+            user.user_name = data["user_name"]
+
+        if tags:
+            user.tags_user = tags
+
+        if url:
+            user.avatar = url
+
+        user.save()
+        
+        return message[200]
 
     
     @staticmethod
