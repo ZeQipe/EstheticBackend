@@ -42,6 +42,9 @@ def user_profile(request, id_profile=""):
 
         except Exception as er:
             return message[404]
+        
+        response = Separement.user_information(user_profile, cookie_user, status="guest")
+        return response
     
     else:
         if isinstance(cookie_user, dict):
@@ -50,6 +53,5 @@ def user_profile(request, id_profile=""):
         response = Separement.user_information(cookie_user, status="owner")
         return response["user"]
     
-    response = Separement.user_information(user_profile, cookie_user, status="guest")
+
         
-    return response

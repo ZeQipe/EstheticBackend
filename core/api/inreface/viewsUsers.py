@@ -68,4 +68,10 @@ def privateProfile(request):
 
 @csrf_exempt
 def publicProfile(request, userID):
-    pass
+    if request.method == "GET":                                         # Get Public profile by userID
+        response = user_profile(request, userID)
+
+    else:
+        response = message[405]
+        
+    return JsonResponse(response, status=response.get("status", 200))
