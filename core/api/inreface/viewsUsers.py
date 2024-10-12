@@ -64,3 +64,8 @@ def privateProfile(request):
         response = message[405]
         
     return JsonResponse(response, status=response.get("status", 200))
+
+
+@csrf_exempt
+def publicProfile(request, userID):
+    pass

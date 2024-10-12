@@ -8,4 +8,5 @@ urlpatterns = [
     path("users/login", viewsUsers.usersLogin, name="user_login"),
     path("users/logout", viewsUsers.usersLogout, name="user_logout"),
     path("users/private-profile", viewsUsers.privateProfile, name="privateProfile"),
+    path("users/public-profile/<str:userID>", viewsUsers.publicProfile, name="publicProfile"),
 ]
