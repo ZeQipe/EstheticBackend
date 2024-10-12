@@ -93,4 +93,10 @@ def users(request):
 
 @csrf_exempt
 def usersCreatedPosts(request, userID):
-    pass
+    if request.method == "GET":                                         # Get created users posts
+        response = user_created_post_list(request, userID)
+
+    else:
+        response = message[405]
+
+    return JsonResponse(response, status=response.get("status", 200))
