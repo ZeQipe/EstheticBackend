@@ -1,4 +1,5 @@
 from services.encriptionService import Encriptions
+from apps.users.models import User
 
 
 class Separement:
@@ -34,16 +35,35 @@ class Separement:
             prew_tags.append(i["label"])
         
         return prew_tags
-    
+
+
     @staticmethod
-    def user_information(user):
-        user_data = {
-                "userId": user.id,
-                "subscribersAmount": user.subscribers.count(),
-                "avatar": user.avatar,
-                "firstName": user.first_name,
-                "lastName": user.last_name,
-                "userName": user.user_name,
-                }
+    def user_information(user: User, cookie_user=False, status=False):
+        user_data = {"user": {
+                             "userId": user.id,
+                             "subscribersAmount": user.subscribers.count(),
+                             "avatar": user.avatar,
+                             "firstName": user.first_name,
+                             "lastName": user.last_name,
+                             "userName": user.user_name,
+                             }
+                    }
         
-        return user_data
+        if status == "owner":
+            user_data['user']['email'] = user.email
+            user_data['user']['tags'] = Separement.packing_tags(cookie_user.tags_user)
+
+        elif isinstance(cookie_user, User) and cookie_user.id == user.id:
+            user_data['user']['email'] = user.email
+            user_data['guest'] = {
+                "isOwner": True,
+                "isSubscribe": False
+            }
+
+        elif status == "guest":
+            user_data['guest'] = {
+                "isOwner" : False,
+                "isSubscribe": False if isinstance(cookie_user, dict) else (True if cookie_user in user.subscribers else False)
+            }
+
+        return user_data["user"] if not status else user_data

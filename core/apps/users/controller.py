@@ -2,6 +2,8 @@ from templates.answer import answer_dict as message
 from apps.users.models import User
 from services.encriptionService import Encriptions
 from django.http.multipartparser import MultiPartParser
+from services.authService import Authorization
+from services.parserService import Separement
 
 
 def registration_users(request) -> dict:
@@ -32,4 +34,22 @@ def registration_users(request) -> dict:
 
 
 def user_profile(request, id_profile=""):
-    pass
+    cookie_user = Authorization.is_authorization(request)
+    
+    if id_profile:
+        try:    
+            user_profile = User.objects.get(id=id_profile)
+
+        except Exception as er:
+            return message[404]
+    
+    else:
+        if isinstance(cookie_user, dict):
+            return message[401]
+        
+        response = Separement.user_information(cookie_user, status="owner")
+        return response["user"]
+    
+    response = Separement.user_information(user_profile, cookie_user, status="guest")
+        
+    return response
