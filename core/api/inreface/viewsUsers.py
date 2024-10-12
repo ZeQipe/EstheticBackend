@@ -41,4 +41,15 @@ def usersLogin(request):
 @csrf_exempt
 @require_http_methods(["POST"])
 def usersLogout(request):
-    pass
+    if request.method == "POST":                                        # LogOut user
+        user = Authorization.is_authorization(request)
+        if isinstance(user, dict):
+            response = JsonResponse(message[401], status=401)
+        else:
+            response = JsonResponse(message[200], status=200)
+            response.delete_cookie("auth_key")
+        
+    else:
+        response = JsonResponse(message[405], status=405)
+
+    return response

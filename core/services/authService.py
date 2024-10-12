@@ -48,3 +48,6 @@ class Authorization:
                             )
         return response
 
+    @staticmethod
+    def is_authorization(request):
+        pass
