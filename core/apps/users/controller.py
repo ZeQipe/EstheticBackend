@@ -29,3 +29,7 @@ def registration_users(request) -> dict:
         return message[500]
     
     return result
+
+
+def user_profile(request, id_profile=""):
+    pass

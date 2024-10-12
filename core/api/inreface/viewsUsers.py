@@ -57,4 +57,10 @@ def usersLogout(request):
 
 @csrf_exempt
 def privateProfile(request):
-    pass
+    if request.method == "GET":                                         # Get Private profile by cookie
+        response = user_profile(request) 
+        
+    else:
+        response = message[405]
+        
+    return JsonResponse(response, status=response.get("status", 200))
