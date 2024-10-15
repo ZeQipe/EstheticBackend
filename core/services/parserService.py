@@ -81,7 +81,7 @@ class Separement:
         :return: список отформатированных постов
         """
         formatted_posts = {"postsAmount": amount,
-                        "posts": []}
+                           "posts": []}
         
         for post in result[start:start+end:]:
             posted = {
