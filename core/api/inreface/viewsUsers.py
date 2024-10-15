@@ -104,4 +104,14 @@ def usersCreatedPosts(request, userID):
 
 @csrf_exempt
 def check_auth(request): 
-    pass
+    if request.method == "GET":                                         # Check authorization from user
+        if isinstance(Authorization.is_authorization(request), dict):
+            mess = {"isAuth": False}
+            response = JsonResponse(mess, status=401)
+        else:
+            mess = {"isAuth": True}
+            response = JsonResponse(mess, status=200)
+    else:
+        response = JsonResponse(mess[405], status=405)
+        
+    return response
