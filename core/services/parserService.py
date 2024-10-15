@@ -55,12 +55,13 @@ class Separement:
             user_data['user']['email'] = user.email
             user_data['user']['tags'] = Separement.packing_tags(cookie_user.tags_user)
 
-        elif not isinstance(cookie_user, dict) and cookie_user.id == user.id:
-            user_data['user']['email'] = user.email
-            user_data['guest'] = {
-                "isOwner": True,
-                "isSubscribe": False
-            }
+        elif cookie_user:
+            if not isinstance(cookie_user, dict) and cookie_user.id == user.id:
+                user_data['user']['email'] = user.email
+                user_data['guest'] = {
+                    "isOwner": True,
+                    "isSubscribe": False
+                }
 
         elif status == "guest":
             user_data['guest'] = {
