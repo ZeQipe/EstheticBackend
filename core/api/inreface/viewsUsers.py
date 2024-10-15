@@ -4,6 +4,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from apps.users.controller import *
 from services.authService import Authorization
+from services.delService import DeletterObject as deletter
 
 
 @csrf_exempt
@@ -80,7 +81,7 @@ def publicProfile(request, userID):
 @csrf_exempt
 def users(request):
     if request.method == "DELETE":                                      # Delete object
-        pass
+        response = deletter.del_object(request, User)
 
     elif request.method == "PUT":
         response = edit_user_data(request)                           # Edit User Profile
