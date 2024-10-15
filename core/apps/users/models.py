@@ -86,16 +86,17 @@ class User(models.Model):
         return message[200]
 
 
-
     @staticmethod
     def __validate_data(data: dict, mode: str) -> tuple:
         """
         Валидация данных пользователя при создании или редактировании, включая проверку уникальности user_name и email.
-        :param data: словарь с данными пользователя
+        :param data: словарь с данными пользователя, которые нужно валидировать
         :param mode: режим, либо "create" (создание), либо "edit" (редактирование)
         :return: кортеж - булево значение результата и сообщение об ошибке
         """
-
+        # Поля, которые должны быть валидированы
+        fields_to_validate = ['first_name', 'last_name', 'user_name', 'email', 'password']
+        
         # Регулярные выражения для полей
         regex_patterns = {
             'first_name': r'^.{2,20}$',
@@ -110,23 +111,29 @@ class User(models.Model):
         if mode == 'create':
             required_fields.append('password')
         
+        # Фильтрация данных — оставляем только те, которые должны быть валидированы
+        filtered_data = {field: data.get(field) for field in fields_to_validate}
+
         # Проверка наличия всех обязательных полей в режиме "create"
         if mode == 'create':
             for field in required_fields:
-                if not data.get(field):
+                if field == "last_name":
+                    continue
+                
+                if not filtered_data.get(field):
                     return False, f'Ошибка запроса. Поле {field} не может быть пустым при регистрации'
         
         # Итерация по полям и их валидация
-        for field, value in data.items():
+        for field, value in filtered_data.items():
             # Пропуск значений None в режиме "edit"
             if mode == 'edit' and value is None:
                 continue
-            
+
             # Преобразование пустой строки для last_name в None
             if field == 'last_name' and value == '':
-                data[field] = None
+                filtered_data[field] = None
                 continue  # Пропуск дальнейшей проверки для этого поля
-            
+
             # Пропуск проверки password в режиме "edit"
             if mode == 'edit' and field == 'password':
                 continue
@@ -135,21 +142,22 @@ class User(models.Model):
             if value and not isinstance(value, str):
                 return False, f'Ошибка запроса. Поле {field} должно быть строкой'
             
+            # Проверка соответствия регулярному выражению
             if value and not re.match(regex_patterns[field], value):
                 return False, f'Ошибка запроса. Неверное значение для поля {field}'
-
-        # Если все проверки пройдены, выполняем проверку уникальности user_name и email
+        
+        # Проверка уникальности user_name и email
         if mode == 'create':
             # Проверка уникальности user_name и email при создании
-            if User.objects.filter(user_name=data['user_name']).exists():
+            if User.objects.filter(user_name=filtered_data['user_name']).exists():
                 return False, 'Ошибка запроса. Имя пользователя уже занято'
 
-            if User.objects.filter(email=data['email']).exists():
+            if User.objects.filter(email=filtered_data['email']).exists():
                 return False, 'Ошибка запроса. Адрес электронной почты уже занят'
-        
-        if mode == 'edit' and data.get('user_name') is not None:
+
+        if mode == 'edit' and filtered_data.get('user_name') is not None:
             # Проверка уникальности user_name при редактировании (если оно присутствует)
-            if User.objects.filter(user_name=data['user_name']).exists():
+            if User.objects.filter(user_name=filtered_data['user_name']).exists():
                 return False, 'Ошибка запроса. Имя пользователя уже занято'
         
         return True, "All data correct"
