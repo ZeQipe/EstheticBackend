@@ -47,7 +47,8 @@ class User(models.Model):
 
         except Exception as error:
             return message[500]
-        
+
+
     @staticmethod
     def change_user(user, data):
         result_validate, message_validate = User.__validate_data(data, "edit")
@@ -84,7 +85,8 @@ class User(models.Model):
         
         return message[200]
 
-    
+
+
     @staticmethod
     def __validate_data(data: dict, mode: str) -> tuple:
         """

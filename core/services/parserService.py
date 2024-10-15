@@ -1,5 +1,7 @@
 from services.encriptionService import Encriptions
 from services.mediaService import Media
+import json
+
 
 class Separement:
     @staticmethod
@@ -24,10 +26,12 @@ class Separement:
 
 
     @staticmethod
-    def unpacking_tags(tags: list[dict]) -> list[str]:
-        if not tags:
+    def unpacking_tags(tags_str: str) -> list[str]:
+        if not tags_str:
             return []
         
+        tags = json.loads(tags_str)
+
         prew_tags = []
         for i in tags:
             prew_tags.append(i["label"])
@@ -36,7 +40,7 @@ class Separement:
 
 
     @staticmethod
-    def user_information(user, cookie_user=False, status=False, ):
+    def user_information(user, cookie_user=False, status=False):
         user_data = {"user": {
                              "userId": user.id,
                              "subscribersAmount": user.subscribers.count(),
