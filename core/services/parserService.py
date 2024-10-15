@@ -44,7 +44,7 @@ class Separement:
         user_data = {"user": {
                              "userId": user.id,
                              "subscribersAmount": user.subscribers.count(),
-                             "avatar": Media.get_full_url(user.avatar),
+                             "avatar": Media.get_full_url(user.avatar) if user.avatar else None,
                              "firstName": user.first_name,
                              "lastName": user.last_name,
                              "userName": user.user_name,
@@ -53,23 +53,26 @@ class Separement:
         
         if status == "owner":
             user_data['user']['email'] = user.email
-            user_data['user']['tags'] = Separement.packing_tags(cookie_user.tags_user)
+            user_data['user']['tags'] = Separement.packing_tags(user.tags_user)
 
         elif cookie_user:
-            if not isinstance(cookie_user, dict) and cookie_user.id == user.id:
-                user_data['user']['email'] = user.email
-                user_data['guest'] = {
-                    "isOwner": True,
-                    "isSubscribe": False
-                }
+            if not isinstance(cookie_user, dict):
+                if cookie_user.id == user.id:
+                    user_data['user']['email'] = user.email
+                    user_data['guest'] = {
+                        "isOwner": True,
+                        "isSubscribe": False
+                    }
 
-        elif status == "guest":
-            user_data['guest'] = {
-                "isOwner" : False,
-                "isSubscribe": False if isinstance(cookie_user, dict) else (True if cookie_user in user.subscribers else False)
-            }
+                else:
+                    user_data['guest'] = {
+                        "isOwner": False,
+                        "isSubscribe": True if cookie_user in user.subscribers.all() else False
+                    }
 
-        return user_data["user"] if not status else user_data
+
+
+        return user_data["user"] if status == "owner" else user_data
     
 
     @staticmethod

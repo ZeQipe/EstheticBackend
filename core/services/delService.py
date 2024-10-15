@@ -9,7 +9,7 @@ from apps.users.models import User
 class DeletterObject:
     @staticmethod
     def del_object(request, model, targetID=None):
-        cookie_user = Authorization.check_logining(request)
+        cookie_user = Authorization.is_authorization(request)
         
         if isinstance(cookie_user, dict):
             return message[401]

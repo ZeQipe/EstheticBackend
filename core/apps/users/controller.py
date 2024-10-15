@@ -43,7 +43,7 @@ def user_profile(request, id_profile=""):
         except Exception as er:
             return message[404]
         
-        response = Separement.user_information(user_profile, cookie_user, status="guest")
+        response = Separement.user_information(user_profile, cookie_user)
         return response
     
     else:
@@ -51,7 +51,7 @@ def user_profile(request, id_profile=""):
             return message[401]
         
         response = Separement.user_information(cookie_user, status="owner")
-        return response["user"]
+        return response
     
 
 def edit_user_data(request):

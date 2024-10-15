@@ -32,7 +32,7 @@ class User(models.Model):
         
         try:
             url = Media.save_media(data["media"], data["id"], "avatars")
-            User.objects.create(
+            user = User.objects.create(
                                 id=data["id"],
                                 first_name=data["first_name"],
                                 last_name=data["last_name"],
@@ -43,7 +43,7 @@ class User(models.Model):
                                 tags_user=Separement.unpacking_tags(data["tags_list"])
                                 )
             
-            return message[200]
+            return Separement.user_information(user, status="owner")
 
         except Exception as error:
             return message[500]
@@ -119,7 +119,7 @@ class User(models.Model):
             for field in required_fields:
                 if field == "last_name":
                     continue
-                
+
                 if not filtered_data.get(field):
                     return False, f'Ошибка запроса. Поле {field} не может быть пустым при регистрации'
         

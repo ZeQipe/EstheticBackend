@@ -33,7 +33,7 @@ class Authorization:
             return message[401]
         
         else:
-            response = Separement.user_information(user)
+            response = Separement.user_information(user, status="owner")
             return response
 
 
