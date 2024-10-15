@@ -18,6 +18,7 @@ class User(models.Model):
     tags_user = models.JSONField(default=list)
     subscribers = models.ManyToManyField("self", symmetrical=False, related_name="following", blank=True)
     created_at = models.DateTimeField(default=timezone.now)
+    status = models.CharField(default="active")
 
     @staticmethod
     def create_user(data):
