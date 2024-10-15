@@ -1,6 +1,6 @@
 from django.urls import path
-from ..inreface import viewsPosts
-from ..inreface import viewsComments
+from ..interface import viewsPosts
+from ..interface import viewsComments
 
 
 urlpatterns = [

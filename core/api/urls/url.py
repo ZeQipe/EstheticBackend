@@ -1,5 +1,5 @@
 from django.urls import path
-from ..inreface import views
+from ..interface import views
 from django.urls import path
 
 

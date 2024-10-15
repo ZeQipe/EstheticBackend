@@ -1,6 +1,6 @@
 from django.urls import path
-from ..inreface import viewsUsers
-from ..inreface import viewsDashboards
+from ..interface import viewsUsers
+from ..interface import viewsDashboards
 
 
 urlpatterns = [
