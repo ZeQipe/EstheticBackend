@@ -1,5 +1,4 @@
 from services.encriptionService import Encriptions
-from apps.users.models import User
 from services.mediaService import Media
 
 class Separement:
@@ -37,7 +36,7 @@ class Separement:
 
 
     @staticmethod
-    def user_information(user: User, cookie_user=False, status=False):
+    def user_information(user, cookie_user=False, status=False, ):
         user_data = {"user": {
                              "userId": user.id,
                              "subscribersAmount": user.subscribers.count(),
@@ -52,7 +51,7 @@ class Separement:
             user_data['user']['email'] = user.email
             user_data['user']['tags'] = Separement.packing_tags(cookie_user.tags_user)
 
-        elif isinstance(cookie_user, User) and cookie_user.id == user.id:
+        elif not isinstance(cookie_user, dict) and cookie_user.id == user.id:
             user_data['user']['email'] = user.email
             user_data['guest'] = {
                 "isOwner": True,
