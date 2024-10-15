@@ -100,3 +100,8 @@ def usersCreatedPosts(request, userID):
         response = message[405]
 
     return JsonResponse(response, status=response.get("status", 200))
+
+
+@csrf_exempt
+def check_auth(request): 
+    pass
