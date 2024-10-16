@@ -16,6 +16,7 @@ urlpatterns = [
     # dashboards
     path("dashboards", viewsDashboards.dashboards, name='dashboards'),
     path("dashboards/check-posts", viewsDashboards.post_in_boards, name="post_in_boards"),
+    path("dashboards/<str:boardID>/delete-posts", viewsDashboards.dashboards_delete_posts, name="dashboardsDeletePosts"),
 
     # auth
     path("auth/check", viewsUsers.check_auth, name="check_auth")

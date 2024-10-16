@@ -27,3 +27,14 @@ def post_in_boards(request):
         response = message[405]
         
     return JsonResponse(response, status=response.get("status", 200))
+
+
+@csrf_exempt
+def dashboards_delete_posts(request, boardID): 
+    if request.method == "DELETE":                                      # Delete post in board
+        pass
+    
+    else:
+        response = message[405]
+        
+    return JsonResponse(response, status=response.get("status", 200))
