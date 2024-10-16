@@ -112,3 +112,38 @@ class Separement:
             formatted_posts["posts"].append(posted)
 
         return formatted_posts
+    
+
+    @staticmethod
+    def parse_dashboard_list(user, start, end):
+        response = {
+            "dashboardsAmount": user.boards.count(),
+            "favorites": None,
+            "dashboards": []
+        }
+
+        # Получение досок пользователя
+        boards = user.boards.all()
+        favorites_board = boards.filter(name="Избранное").first()
+
+        # Обработка доски "Избранное"
+        if favorites_board:
+            recent_posts = favorites_board.posts.order_by('-boardpost__added_at')[:5]
+            
+            response["favorites"] = {
+                "dashboardId": favorites_board.id,
+                "url": [post.url for post in recent_posts]}
+            
+            response["dashboardsAmount"] -= 1
+
+        # Обработка кастомных досок
+        for board in boards.exclude(name="Избранное")[start:start+end]:
+            recent_posts = board.posts.order_by('-boardpost__added_at')[:5]
+            
+            response["dashboards"].append({
+                "dashboardId": board.id,
+                "dashboardName": board.name,
+                "urls": [post.url for post in recent_posts]
+            })
+
+        return response
