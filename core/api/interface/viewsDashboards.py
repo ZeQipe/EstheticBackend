@@ -9,8 +9,19 @@ def dashboards(request):
     if request.method == "POST":                                        # Create board
         response = create_dashboards(request)
 
-    elif request.method == "GET":                                           # Get compact board list 
+    elif request.method == "GET":                                       # Get compact board list 
         response = get_boards_user_by_cookie(request)
+
+    else:
+        response = message[405]
+        
+    return JsonResponse(response, status=response.get("status", 200))
+
+
+@csrf_exempt
+def post_in_boards(request):
+    if request.method == "GET":                                         # Is post in Dashboards
+        pass
 
     else:
         response = message[405]
