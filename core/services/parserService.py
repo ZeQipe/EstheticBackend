@@ -37,6 +37,21 @@ class Separement:
             prew_tags.append(i["label"])
         
         return prew_tags
+    
+
+    @staticmethod
+    def pagination_parametrs(request):
+        try:
+            offset = int(request.GET.get('offset', 0))
+        except ValueError:
+            offset = 0
+
+        try:
+            limit = int(request.GET.get('limit', 20))
+        except ValueError:
+            limit = 20
+        
+        return offset, limit
 
 
     @staticmethod

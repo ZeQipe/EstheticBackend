@@ -9,6 +9,9 @@ def dashboards(request):
     if request.method == "POST":                                        # Create board
         response = create_dashboards(request)
 
+    elif request.method == "GET":                                           # Get compact board list 
+        response = get_boards_user_by_cookie(request)
+
     else:
         response = message[405]
         
