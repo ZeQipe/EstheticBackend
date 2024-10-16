@@ -7,7 +7,7 @@ from django.http import JsonResponse
 @csrf_exempt
 def dashboards(request): 
     if request.method == "POST":                                        # Create board
-        pass
+        response = create_dashboards(request)
 
     else:
         response = message[405]

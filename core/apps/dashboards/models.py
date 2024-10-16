@@ -3,6 +3,9 @@ from apps.users.models import User
 from apps.posts.models import Post
 from django.utils import timezone
 from django.db.models import Q
+from services.encriptionService import Encriptions
+from django.utils import timezone
+from django.contrib.postgres.fields import ArrayField
 
 
 class Board(models.Model):
@@ -11,8 +14,22 @@ class Board(models.Model):
     posts = models.ManyToManyField(Post, related_name='boards', blank=True)
     author = models.ForeignKey(User, related_name='boards', on_delete=models.CASCADE)
     created_at = models.DateTimeField(default=timezone.now)
+    recent_photo_urls = ArrayField(models.URLField(), size=5, blank=True, default=list)
 
-    
+
+    @staticmethod
+    def create_board(user, name):
+        id_board = Encriptions.generate_string(35, Board)
+        
+        board = Board.objects.create(
+                            id=id_board,
+                            name=name,
+                            author=user
+                            )
+        
+        return {"dashboardId": board.id}
+
+
     @staticmethod
     def check_board_name(user, name) -> bool:
         """
@@ -36,6 +53,10 @@ class Board(models.Model):
         return False
     
     
-    @staticmethod
-    def create_board(user, name):
-        pass
+class BoardPost(models.Model):
+    board = models.ForeignKey(Board, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    added_at = models.DateTimeField(default=timezone.now)  # Дата добавления поста на доску
+
+    class Meta:
+        ordering = ['-added_at'] 

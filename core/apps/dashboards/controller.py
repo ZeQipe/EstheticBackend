@@ -12,8 +12,8 @@ def create_dashboards(request):
     if isinstance(cookie_user, dict): return message[401]
     
     # Извлечение данных доски из формы
-    request_data = MultiPartParser(request.META, request, request.upload_handlers).parse()
-    boardName = request_data[0].get("dashboardName", False)
+    request_data = json.loads(request.body)
+    boardName = request_data.get("dashboardName", False)
     if not boardName: return message[400]
 
     result = Board.check_board_name(cookie_user, boardName)
@@ -23,7 +23,7 @@ def create_dashboards(request):
         return response
     
     # Создание доски
-    try: Board.create_board(cookie_user, boardName)
-    except Exception: return message[500]
+    try: response = Board.create_board(cookie_user, boardName)
+    except Exception: response = message[500]
     
-    return message[200]
+    return response
