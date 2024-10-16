@@ -21,7 +21,7 @@ def dashboards(request):
 @csrf_exempt
 def post_in_boards(request):
     if request.method == "GET":                                         # Is post in Dashboards
-        pass
+        response = check_post_in_boards(request)
 
     else:
         response = message[405]

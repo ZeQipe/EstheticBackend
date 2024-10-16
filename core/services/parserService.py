@@ -147,3 +147,8 @@ class Separement:
             })
 
         return response
+    
+
+    @staticmethod
+    def pars_dashboards_info_in(boards):
+        pass
