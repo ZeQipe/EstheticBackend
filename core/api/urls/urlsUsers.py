@@ -14,7 +14,7 @@ urlpatterns = [
     path("users/<str:userID>/created-posts", viewsUsers.usersCreatedPosts, name="userCreatedPosts"),
 
     # dashboards
-    
+    path("dashboards", viewsDashboards.dashboards, name='dashboards'),
 
     # auth
     path("auth/check", viewsUsers.check_auth, name="check_auth")
