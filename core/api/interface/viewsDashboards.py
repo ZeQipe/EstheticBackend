@@ -32,7 +32,7 @@ def post_in_boards(request):
 @csrf_exempt
 def dashboards_delete_posts(request, boardID): 
     if request.method == "DELETE":                                      # Delete post in board
-        pass
+        response = remove_posts_in_board(request, boardID)
     
     else:
         response = message[405]
