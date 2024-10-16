@@ -151,4 +151,16 @@ class Separement:
 
     @staticmethod
     def pars_dashboards_info_in(boards):
-        pass
+        data = {
+            "inFavorites": False,
+            "inDashboards": []
+            } 
+        
+        for board in boards:
+            if board.name == "Избранное":
+                data["inFavorites"] = True
+                continue
+
+            data["inDashboards"].append(board.id)
+
+        return data
