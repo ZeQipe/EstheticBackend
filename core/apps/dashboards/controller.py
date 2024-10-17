@@ -81,7 +81,7 @@ def remove_posts_in_board(request, boardID):
 
 
 def get_user_dashboards(request, user_id):
-    # Получаем query параметры offset и limit из запроса и пытаемся привести их к int.
+    # Получаем query параметры offset и limit из запроса
     offset, limit = Separement.pagination_parametrs(request)
     
     # Поиск пользователя в базе данных
@@ -91,4 +91,17 @@ def get_user_dashboards(request, user_id):
 
     response = Separement.parse_dashboard_list(user, offset, limit, type="full")
         
+    return response
+
+
+def get_dashboard_detail(request, id_board):
+    # Получаем query параметры offset и limit из запроса
+    offset, limit = Separement.pagination_parametrs(request)
+
+    # Поиск доски в базе данных
+    try: board = Board.objects.get(id=id_board)
+    except Exception: return message[404]
+    
+    response = Separement.parse_dashboard(board, offset, limit)
+    
     return response

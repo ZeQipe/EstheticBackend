@@ -54,7 +54,7 @@ def dashboards_list(request, userID):
 @csrf_exempt
 def dashboards_param(request, boardID): 
     if request.method == "GET":                                         # Get all information by board
-        pass
+        response = get_dashboard_detail(request, boardID)
 
     elif request.method == "POST":                                      # Add post in board by boardID
         pass
