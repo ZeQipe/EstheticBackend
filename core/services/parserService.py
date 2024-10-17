@@ -115,7 +115,7 @@ class Separement:
     
 
     @staticmethod
-    def parse_dashboard_list(user, start, end):
+    def parse_dashboard_list(user, start, end, type = False):
         response = {
             "dashboardsAmount": user.boards.count(),
             "favorites": None,
@@ -134,16 +134,26 @@ class Separement:
                 "dashboardId": favorites_board.id,
                 "url": [post.url for post in recent_posts]}
             
+            if type == "full":
+                response["favorites"]["created_at"] = favorites_board.created_at
+                response["favorites"]["postsAmount"] = favorites_board.posts.all().count()
+            
             response["dashboardsAmount"] -= 1
 
         # Обработка кастомных досок
         for board in boards.exclude(name="Избранное")[start:start+end]:
             recent_posts = board.posts.order_by('-boardpost__added_at')[:5]
-            response["dashboards"].append({
+            
+            board_info = {
                 "dashboardId": board.id,
                 "dashboardName": board.name,
                 "urls": [post.url for post in recent_posts]
-            })
+            }
+
+            board_info["dateOfCreation"] = board.created_at
+            board_info["postsAmount"] = board.posts.all().count()
+
+            response["dashboards"].append(board_info)
 
         return response
     
