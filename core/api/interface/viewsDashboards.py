@@ -2,6 +2,7 @@ from django.views.decorators.csrf import csrf_exempt
 from templates.answer import answer_dict as message
 from apps.dashboards.controller import *
 from django.http import JsonResponse
+from services.delService import DeletterObject
 
 
 @csrf_exempt
@@ -60,7 +61,7 @@ def dashboards_param(request, boardID):
         response = add_post_in_board(request, boardID)
     
     elif request.method == "DELETE":                                    # Delete dashboard
-        pass
+        response = DeletterObject.del_object(request, Board, boardID)
 
     else:
         response = message[405]
