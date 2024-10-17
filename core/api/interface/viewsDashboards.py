@@ -43,7 +43,7 @@ def dashboards_delete_posts(request, boardID):
 @csrf_exempt
 def dashboards_list(request, userID): 
     if request.method == "GET":                                         # Get list information by boards
-        pass
+        response = get_user_dashboards(request, userID)
         
     else:
         response = message[405]

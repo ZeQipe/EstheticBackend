@@ -139,7 +139,6 @@ class Separement:
         # Обработка кастомных досок
         for board in boards.exclude(name="Избранное")[start:start+end]:
             recent_posts = board.posts.order_by('-boardpost__added_at')[:5]
-            
             response["dashboards"].append({
                 "dashboardId": board.id,
                 "dashboardName": board.name,
