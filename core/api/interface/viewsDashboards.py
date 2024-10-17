@@ -38,3 +38,14 @@ def dashboards_delete_posts(request, boardID):
         response = message[405]
         
     return JsonResponse(response, status=response.get("status", 200))
+
+
+@csrf_exempt
+def dashboards_list(request, userID): 
+    if request.method == "GET":                                         # Get list information by boards
+        pass
+        
+    else:
+        response = message[405]
+        
+    return JsonResponse(response, status=response.get("status", 200))
