@@ -4,5 +4,5 @@ from ..interface import viewsComments
 
 
 urlpatterns = [
-    
+        path("posts", viewsPosts.posts, name="posts"),
 ]
