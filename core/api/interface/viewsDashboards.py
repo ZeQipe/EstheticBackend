@@ -57,7 +57,7 @@ def dashboards_param(request, boardID):
         response = get_dashboard_detail(request, boardID)
 
     elif request.method == "POST":                                      # Add post in board by boardID
-        pass
+        response = add_post_in_board(request, boardID)
     
     elif request.method == "DELETE":                                    # Delete dashboard
         pass

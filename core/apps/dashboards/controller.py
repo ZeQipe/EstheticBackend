@@ -61,7 +61,7 @@ def check_post_in_boards(request):
 
 
 def remove_posts_in_board(request, boardID):
-    cookie_user = Authorization.check_logining(request)
+    cookie_user = Authorization.is_authorization(request)
     
     if isinstance(cookie_user, dict): return message[401]
     
@@ -105,3 +105,27 @@ def get_dashboard_detail(request, id_board):
     response = Separement.parse_dashboard(boards, offset, limit)
     
     return response
+
+
+def add_post_in_board(request, board_id):
+    # Проверка авторизации пользователя
+    cookie_user = Authorization.is_authorization(request)
+    if isinstance(cookie_user, dict): return message[401]
+    
+    # Поиск доски в базе данных
+    try: board = Board.objects.get(id=board_id, author=cookie_user)
+    except Exception: return message[404]
+    
+    # Поиск поста в базе данных
+    data = json.loads(request.body)
+    try: post = Post.objects.get(id=data.get('postsId', ''))
+    except Exception: return message[404]
+    
+    if post in board.posts.all():
+        response = message[400].copy()
+        response['message'] = f"This post has already been added"
+        return response
+    
+    # Добавления поста в доску
+    board.posts.add(post)
+    return message[200]
