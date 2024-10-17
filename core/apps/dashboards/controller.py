@@ -99,9 +99,9 @@ def get_dashboard_detail(request, id_board):
     offset, limit = Separement.pagination_parametrs(request)
 
     # Поиск доски в базе данных
-    try: board = Board.objects.get(id=id_board)
+    try: boards = Board.objects.get(id=id_board).order_by('-created_at')
     except Exception: return message[404]
     
-    response = Separement.parse_dashboard(board, offset, limit)
+    response = Separement.parse_dashboard(boards, offset, limit)
     
     return response

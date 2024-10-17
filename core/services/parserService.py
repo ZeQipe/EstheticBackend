@@ -1,5 +1,7 @@
 from services.encriptionService import Encriptions
 from services.mediaService import Media
+from django.utils.dateformat import DateFormat
+from django.utils.timezone import get_current_timezone
 import json
 
 
@@ -172,4 +174,36 @@ class Separement:
 
             data["inDashboards"].append(board.id)
 
+        return data
+
+
+    @staticmethod
+    def parse_dashboard(board, offset, limit):
+        # Получение и форматирование даты создания доски
+        created_at = board.created_at
+        formatted_date = DateFormat(created_at.astimezone(get_current_timezone())).format('Y-m-d\TH:i:sP')
+        
+        # Получение и форматирование постов
+        all_posts = board.posts.order_by('-boardpost__added_at')
+        post_count = all_posts.count()
+        posts = Separement.formatted_posts(all_posts, offset, limit, post_count)
+        
+        # Формирование инфорации о доске
+        data = {
+                "dashboardInfo": {
+                    "dashboardId": board.id,
+                    "dashboardName": board.name,
+                    "postsAmount": post_count,
+                    "dateOfCreation": formatted_date,
+                },
+                "author":{
+                         "firstName": board.author.first_name,
+                         "lastName": board.author.last_name,
+                         "userName": board.author.user_name,
+                         "userId": board.author.id,
+                         "avatar": board.author.avatar
+                         },
+                "posts": posts['posts']
+                }
+        
         return data
