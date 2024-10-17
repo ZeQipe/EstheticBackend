@@ -15,3 +15,7 @@ class Post(models.Model):
     aspect_ratio = models.TextField(blank=True, null=True)
     link = models.CharField(max_length=100)
     created_at = models.DateTimeField(default=timezone.now)
+
+    @staticmethod
+    def create_post(data):
+        pass
