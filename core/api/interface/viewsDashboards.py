@@ -49,3 +49,20 @@ def dashboards_list(request, userID):
         response = message[405]
         
     return JsonResponse(response, status=response.get("status", 200))
+
+
+@csrf_exempt
+def dashboards_param(request, boardID): 
+    if request.method == "GET":                                         # Get all information by board
+        pass
+
+    elif request.method == "POST":                                      # Add post in board by boardID
+        pass
+    
+    elif request.method == "DELETE":                                    # Delete dashboard
+        pass
+
+    else:
+        response = message[405]
+        
+    return JsonResponse(response, status=response.get("status", 200))
