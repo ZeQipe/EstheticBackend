@@ -38,6 +38,9 @@ def posts_param(request, postID):
     elif request.method == "DELETE":                                    # Delete post
         response = DeletterObject.del_object(request, Post, postID)
 
+    elif request.method == "PUT":                                       # Changing post information by postID
+        response = edit_post_by_id(request, postID)
+    
     else:
         response = message[405]
         

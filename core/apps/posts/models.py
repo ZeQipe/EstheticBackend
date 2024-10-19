@@ -51,6 +51,11 @@ class Post(models.Model):
     
 
     @staticmethod
+    def change_data_post(post_data):
+        pass
+
+
+    @staticmethod
     def get_posts(user_tags: list, offset=0, limit=20) -> list:
         """
         Возвращает список постов на основе тегов пользователя, offset и limit.

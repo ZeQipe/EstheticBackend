@@ -30,6 +30,34 @@ def create_post(request):
     except Exception: return message[500]
 
 
+def edit_post_by_id(request, post_id):
+    # Поиск автора поста
+    cookie_user = Authorization.check_logining(request)
+    if isinstance(cookie_user, dict): return message[401]
+    
+    # Ищем пост, который необходимо изменить
+    try: post = Post.objects.get(id=post_id)
+    except: return message[404]
+
+    # Проверка на то, что запрос выполнил автор
+    if cookie_user.id != post.author.id: return message[403]
+    
+    # Получаем данные для редактирования
+    data = MultiPartParser(request.META, request, request.upload_handlers).parse()
+    post_data = {
+                "postName": data[0].get("name"),
+                "description": data[0].get("description"),
+                "link": data[0].get("link"),
+                "aspectRatio": data[0].get("aspectRatio"),
+                "tags": data[0].get("tags")
+                }
+    
+    try: result = Post.change_data_post(post_data)
+    except Exception: result = message[500]
+        
+    return result
+
+
 def search_posts(request):
     """
     Обрабатывает запрос на получение постов учитывая теги пользователя.
