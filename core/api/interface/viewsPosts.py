@@ -8,6 +8,9 @@ from django.views.decorators.csrf import csrf_exempt
 def posts(request): 
     if request.method == "POST":                                         # Create post
         response = create_post(request)
+    
+    elif request.method == "GET":                                         # Get all posts
+        response = search_posts(request)
 
     else:
         response = message[405]

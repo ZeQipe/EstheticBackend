@@ -46,7 +46,12 @@ class Post(models.Model):
                         link=data["link"] # Ссылка для сохранения
                         )
 
-        return {"postId": post.id}    
+        return {"postId": post.id}
+
+
+    @staticmethod
+    def get_posts(tags_user, offset, limit):
+        pass    
 
     
     @staticmethod

@@ -3,6 +3,7 @@ from services.authService import Authorization
 from django.http.multipartparser import MultiPartParser
 from apps.posts.models import Post
 from services.encriptionService import Encriptions
+from services.parserService import Separement
 
 
 def create_post(request):
@@ -27,3 +28,27 @@ def create_post(request):
     try: return Post.create_post(post_data) 
     
     except Exception: return message[500]
+
+
+def search_posts(request):
+    """
+    Обрабатывает запрос на получение постов учитывая теги пользователя.
+    """
+    # Получаем query параметры offset и limit из запроса и пытаемся привести их к int.
+    offset, limit = Separement.pagination_parametrs(request)
+
+    # Поиск автора поста через auth_key из cookies
+    cookie_user = Authorization.is_authorization(request)
+    
+    if isinstance(cookie_user, dict): tags_user = []
+    else: tags_user = cookie_user.tags_user
+    
+    # Получаем посты из базы данных с учетом тегов, offset и limit
+    try: result = Post.get_posts(tags_user, offset, limit)
+    except Exception: return message[500]
+
+    if not result: return message[404]
+
+    # Форматирование постов
+    response = Separement.formatted_posts(result, offset, limit, Post.objects.all().count())
+    return response
