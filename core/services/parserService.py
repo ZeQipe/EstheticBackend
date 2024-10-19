@@ -93,7 +93,7 @@ class Separement:
     
 
     @staticmethod
-    def formatted_posts(result, start, end, amount) -> list[dict]:
+    def formatted_posts(result, amount) -> list[dict]:
         """
         Парсит результат и формирует список постов в нужном формате.
         :param result: результат запроса
@@ -103,7 +103,7 @@ class Separement:
         formatted_posts = {"postsAmount": amount,
                            "posts": []}
         
-        for post in result[start:start+end:]:
+        for post in result:
             posted = {
                 "postId": post.id,
                 "contentType": post.type_content,
@@ -186,7 +186,7 @@ class Separement:
         # Получение и форматирование постов
         all_posts = board.posts.order_by('-boardpost__added_at')
         post_count = all_posts.count()
-        posts = Separement.formatted_posts(all_posts, offset, limit, post_count)
+        posts = Separement.formatted_posts(all_posts, post_count)
         
         # Формирование инфорации о доске
         data = {

@@ -4,6 +4,7 @@ from apps.users.models import User
 from django.utils import timezone
 from services.parserService import Separement
 from services.mediaService import Media
+from django.db.models import Q
 import re
 
 
@@ -50,8 +51,117 @@ class Post(models.Model):
 
 
     @staticmethod
-    def get_posts(tags_user, offset, limit):
-        pass    
+    def get_posts(user_tags: list, offset=0, limit=20) -> list:
+        """
+        Возвращает список постов на основе тегов пользователя, offset и limit.
+        Если offset превышает количество постов, используется режим замкнутого круга.
+        
+        :param user_tags: Список тегов пользователя для поиска (список строк).
+        :param offset: Количество постов, которые нужно пропустить.
+        :param limit: Количество постов, которые нужно вернуть.
+        :return: Список объектов Post.
+        """
+        # Приведение тегов пользователя к нижнему регистру
+        user_tags_normalized = [tag.lower() for tag in user_tags]
+
+        # Всего постов в базе
+        total_posts_count = Post.objects.all().count()
+
+        # Режим 1: Если нет тегов, возвращаем посты от новых к старым
+        if not user_tags_normalized:
+            return Post._get_posts_without_tags(offset, limit, total_posts_count)
+
+        # Режим 2: Если есть теги, ищем по тегам
+        posts_by_tags = Post._get_posts_by_tags(user_tags_normalized, offset, limit)
+
+        # Режим 3: Если offset больше количества постов — замкнутый круг
+        if offset >= total_posts_count:
+            return Post._get_posts_with_loop(offset, limit, total_posts_count)
+
+        return posts_by_tags
+
+    @staticmethod
+    def _get_posts_without_tags(offset: int, limit: int, total_posts_count: int) -> list:
+        """
+        Возвращает посты от новых к старым, без фильтрации по тегам.
+        """
+        # Замкнутый круг, если offset больше количества постов
+        if offset >= total_posts_count:
+            offset = offset % total_posts_count
+
+        posts = Post.objects.order_by('-created_at')[offset:offset+limit]
+        return list(posts)
+
+    @staticmethod
+    def _get_posts_by_tags(user_tags: list, offset: int, limit: int) -> list:
+        """
+        Возвращает посты по тегам пользователя с учетом offset и limit.
+        Включает точное и частичное совпадение тегов.
+        """
+        # 1. Точное совпадение тегов
+        exact_match = Q()
+        for tag in user_tags:
+            exact_match |= Q(tags_list__icontains=tag)
+
+        exact_posts = Post.objects.filter(exact_match).distinct().order_by('-created_at')
+
+        # Пропуск постов по offset
+        exact_post_count = exact_posts.count()
+        
+        if exact_post_count >= offset + limit:
+            # Если точных постов достаточно, просто возвращаем их с учетом offset и limit
+            return list(exact_posts[offset:offset+limit])
+
+        # Если точных постов недостаточно, включаем их все
+        result_posts = list(exact_posts[offset:])
+
+        # Уменьшаем offset на количество уже взятых точных совпадений
+        offset -= min(exact_post_count, offset)
+        
+        # 2. Частичное совпадение тегов
+        partial_match = Q()
+        for tag in user_tags:
+            partial_match |= Q(tags_list__icontains=tag[:len(tag) // 2])
+
+        partial_posts = Post.objects.filter(partial_match).exclude(id__in=exact_posts).distinct().order_by('-created_at')
+        partial_post_count = partial_posts.count()
+
+        # Пропуск постов по offset для частичных совпадений
+        if partial_post_count >= offset:
+            result_posts.extend(list(partial_posts[offset:offset+limit-len(result_posts)]))
+        else:
+            # Если частичных постов тоже недостаточно, берем все оставшиеся
+            result_posts.extend(list(partial_posts[offset:]))
+
+        # 3. Если все еще не набрали достаточно постов, добираем случайные посты
+        if len(result_posts) < limit:
+            remaining_limit = limit - len(result_posts)
+            random_posts = Post.objects.exclude(id__in=[post.id for post in result_posts]).order_by('?')[:remaining_limit]
+            result_posts.extend(list(random_posts))
+
+        # Применяем limit ко всем найденным постам
+        return result_posts[:limit]
+
+    @staticmethod
+    def _get_posts_with_loop(offset: int, limit: int, total_posts_count: int) -> list:
+        """
+        Режим замкнутого круга: если offset больше общего количества постов, начинаем заново с самого свежего.
+        """
+        # Рассчитываем новый offset для замкнутого круга
+        offset = offset % total_posts_count
+
+        posts = Post.objects.order_by('-created_at')
+
+        # Берем посты, начиная с пересчитанного offset
+        first_batch = list(posts[offset:offset + limit])
+
+        # Если этого недостаточно, берем посты с начала списка
+        remaining_limit = limit - len(first_batch)
+        if remaining_limit > 0:
+            second_batch = list(posts[:remaining_limit])
+            return first_batch + second_batch
+
+        return first_batch
 
     
     @staticmethod

@@ -99,6 +99,6 @@ def user_created_post_list(request, userID):
     posts_user = user.posts.all()
     count = user.posts.all().count()
 
-    response = Separement.formatted_posts(posts_user, offset, limit, count)
+    response = Separement.formatted_posts(posts_user, count)
     
     return response

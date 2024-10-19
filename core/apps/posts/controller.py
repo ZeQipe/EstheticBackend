@@ -45,10 +45,13 @@ def search_posts(request):
     
     # Получаем посты из базы данных с учетом тегов, offset и limit
     try: result = Post.get_posts(tags_user, offset, limit)
-    except Exception: return message[500]
+    except Exception as er: 
+        response = message[500].copy()
+        response["er"] = f"{er}"
+        return response
 
     if not result: return message[404]
 
     # Форматирование постов
-    response = Separement.formatted_posts(result, offset, limit, Post.objects.all().count())
+    response = Separement.formatted_posts(result, Post.objects.all().count())
     return response
