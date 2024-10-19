@@ -27,3 +27,14 @@ def posts_toggle_like(request, postID):
         response = message[405]
         
     return JsonResponse(response, status=response.get("status", 200))
+
+
+@csrf_exempt
+def posts_param(request, postID): 
+    if request.method == "GET":                                         # Get post by postID
+        pass
+    
+    else:
+        response = message[405]
+        
+    return JsonResponse(response, status=response.get("status", 200))
