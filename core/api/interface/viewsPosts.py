@@ -16,3 +16,14 @@ def posts(request):
         response = message[405]
     
     return JsonResponse(response, status=response.get("status", 200))
+
+
+@csrf_exempt
+def postsToggleLike(request, postID): 
+    if request.method == "PUT":                                         # set like post
+        pass
+    
+    else:
+        response = message[405]
+        
+    return JsonResponse(response, status=response.get("status", 200))
