@@ -48,7 +48,7 @@ class Post(models.Model):
                         )
 
         return {"postId": post.id}
-
+    
 
     @staticmethod
     def get_posts(user_tags: list, offset=0, limit=20) -> list:

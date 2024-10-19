@@ -32,7 +32,7 @@ def posts_toggle_like(request, postID):
 @csrf_exempt
 def posts_param(request, postID): 
     if request.method == "GET":                                         # Get post by postID
-        pass
+        response = get_post_by_id(request, postID)
     
     else:
         response = message[405]
