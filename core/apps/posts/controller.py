@@ -70,3 +70,12 @@ def toggle_like(request, postID):
         post.users_liked.add(cookie_user)
         
     return message[200]
+
+
+def get_post_by_id(request, post_id):
+    cookie_user = Authorization.is_authorization(request)
+    
+    try: post = Post.objects.get(id=post_id)
+    except Exception: return message[404]
+    
+    return Separement.detail_info_post(post, cookie_user)

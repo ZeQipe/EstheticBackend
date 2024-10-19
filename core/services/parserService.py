@@ -117,6 +117,11 @@ class Separement:
     
 
     @staticmethod
+    def detail_info_post(post, guest):
+        pass
+
+
+    @staticmethod
     def parse_dashboard_list(user, start, end, type = False):
         response = {
             "dashboardsAmount": user.boards.count(),
