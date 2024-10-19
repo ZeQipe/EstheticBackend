@@ -26,29 +26,30 @@ class Media:
             return # Если файл не передан, возвращаем None
 
         file_extension = file.name.split('.')[-1].lower()
-        
+
         if file_extension in cls.ALLOWED_IMAGE_EXTENSIONS:
             # Обрабатываем изображение
             file_name = f'{user_id}{Encriptions.generate_string(4, False)}.webp'
             save_path = os.path.join(settings.MEDIA_ROOT, 'webp', folder, file_name)
-            
+
             # Создаём директорию, если её нет
             os.makedirs(os.path.dirname(save_path), exist_ok=True)
-            
-            # Сжимаем изображение и сохраняем в формате webp
+
+            # Сжимаем изображение и сохраняем в формате webp 
             with Image.open(file) as img:
                 img.save(save_path, format='webp', quality=90)
 
             # Возвращаем относительный путь к файлу
             relative_path = os.path.join('webp', folder, file_name)
+
             return relative_path
-        
+
         elif file_extension in cls.ALLOWED_VIDEO_EXTENSIONS:
             # Заглушка для видео
-            return 'Video processing is not implemented yet.'
+            return {'message':'Video processing is not implemented yet.'}
         
         else:
-            raise ValueError('Неподдерживаемый тип файла')
+            raise ValueError('Неподдерживаемый тип файла') 
 
 
     @classmethod

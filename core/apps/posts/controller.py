@@ -22,11 +22,8 @@ def create_post(request):
                 "tags": data[0].get("tags"),
                 "file": data[1].get("file")
                 }
-    
+
     # Отправляем в базу все данные
-    try:
-        Post.create_new_posts(post_data)
-        return message[200]
-        
-    except Exception as er:
-        return message[500]
+    try: return Post.create_post(post_data) 
+    
+    except Exception: return message[500]
