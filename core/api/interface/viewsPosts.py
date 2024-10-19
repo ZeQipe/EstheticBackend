@@ -2,6 +2,7 @@ from templates.answer import answer_dict as message
 from django.http import JsonResponse
 from apps.posts.controller import *
 from django.views.decorators.csrf import csrf_exempt
+from services.delService import DeletterObject
 
 
 @csrf_exempt
@@ -33,7 +34,10 @@ def posts_toggle_like(request, postID):
 def posts_param(request, postID): 
     if request.method == "GET":                                         # Get post by postID
         response = get_post_by_id(request, postID)
-    
+
+    elif request.method == "DELETE":                                    # Delete post
+        response = DeletterObject.del_object(request, Post, postID)
+
     else:
         response = message[405]
         
