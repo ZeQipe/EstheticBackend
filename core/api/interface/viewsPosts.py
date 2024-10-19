@@ -19,9 +19,9 @@ def posts(request):
 
 
 @csrf_exempt
-def postsToggleLike(request, postID): 
+def posts_toggle_like(request, postID): 
     if request.method == "PUT":                                         # set like post
-        pass
+        response = toggle_like(request, postID)
     
     else:
         response = message[405]

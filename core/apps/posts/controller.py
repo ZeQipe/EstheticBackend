@@ -55,3 +55,18 @@ def search_posts(request):
     # Форматирование постов
     response = Separement.formatted_posts(result, Post.objects.all().count())
     return response
+
+
+def toggle_like(request, postID):
+    cookie_user = Authorization.is_authorization(request)
+    if isinstance(cookie_user, dict): return message[401]
+    
+    try: post = Post.objects.get(id=postID)
+    except Exception: return message[404]
+    
+    if post.users_liked.filter(id=cookie_user.id).exists():
+        post.users_liked.remove(cookie_user)
+    else:
+        post.users_liked.add(cookie_user)
+        
+    return message[200]
