@@ -32,7 +32,7 @@ def create_post(request):
 
 def edit_post_by_id(request, post_id):
     # Поиск автора поста
-    cookie_user = Authorization.check_logining(request)
+    cookie_user = Authorization.is_authorization(request)
     if isinstance(cookie_user, dict): return message[401]
     
     # Ищем пост, который необходимо изменить
@@ -49,13 +49,13 @@ def edit_post_by_id(request, post_id):
                 "description": data[0].get("description"),
                 "link": data[0].get("link"),
                 "aspectRatio": data[0].get("aspectRatio"),
-                "tags": data[0].get("tags")
+                "tags_list": data[0].get("tag")
                 }
     
-    try: result = Post.change_data_post(post_data)
-    except Exception: result = message[500]
-        
-    return result
+    try: return Post.change_data_post(post, post_data)
+    except Exception as error:  
+        print(error)
+        return message[500]
 
 
 def search_posts(request):
@@ -104,6 +104,8 @@ def get_post_by_id(request, post_id):
     cookie_user = Authorization.is_authorization(request)
     
     try: post = Post.objects.get(id=post_id)
-    except Exception: return message[404]
+    except Exception as error: 
+        print(error)
+        return message[404]
     
-    return Separement.detail_info_post(post, cookie_user)
+    return Separement.detail_info_post(post, cookie_user) 

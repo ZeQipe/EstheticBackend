@@ -51,9 +51,36 @@ class Post(models.Model):
     
 
     @staticmethod
-    def change_data_post(post_data):
-        pass
+    def change_data_post(post, data):
+        result_validate, message_validate = Post.__validate_data(data, "edit")
 
+        if not result_validate:
+            response = message[400].copy()
+            response["message"] = message_validate
+            return response
+
+        tags = Separement.unpacking_tags(data["tags_list"])
+
+        if data["postName"]:
+            post.name = data["postName"]
+
+        if data["description"]:
+            post.description = data["description"]
+            
+        if data["link"]:
+            post.link = data["link"]
+            
+        if data["aspectRatio"]:
+            post.aspect_ratio = data["aspectRatio"]
+
+        # Подготовка тэгов
+        if tags:
+            post.tags_list = tags
+
+        post.save()
+
+        return message[200]
+    
 
     @staticmethod
     def get_posts(user_tags: list, offset=0, limit=20) -> list:

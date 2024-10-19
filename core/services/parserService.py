@@ -118,7 +118,35 @@ class Separement:
 
     @staticmethod
     def detail_info_post(post, guest):
-        pass
+        data = {
+                "post": {
+                    "postId": post.id,
+                    "name": post.post_name,
+                    "description": post.description,
+                    "link": post.link,
+                    "media": {
+                        "type": post.type_content,
+                        "url": Media.get_full_url(post.url),
+                        "aspectRatio": post.aspect_ratio,
+                            },
+                    "likeCount": post.users_liked.count(),
+                    "commentsCount": post.comments.count(),
+                    "tags": Separement.packing_tags(post.tags_list),
+                    "author": {
+                        "firstName": post.author.first_name,
+                        "lastName": post.author.last_name,
+                        "userName": post.author.user_name,
+                        "userId": post.author.id,
+                        "avatar": Media.get_full_url(post.author.avatar)
+                            }
+                        },
+                "user": {
+                    "isLike": not isinstance(guest, dict) and guest in post.users_liked.all(),
+                    "isOwner": not isinstance(guest, dict) and guest.id == post.author.id
+                        }
+                }
+
+        return data
 
 
     @staticmethod
