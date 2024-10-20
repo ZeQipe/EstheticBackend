@@ -21,78 +21,61 @@ class Post(models.Model):
     link = models.CharField(max_length=100, null=True)
     created_at = models.DateTimeField(default=timezone.now)
 
+
     @staticmethod
     def create_post(data):
+        # Валидация данных
         result_validate, message_validate = Post.__validate_data(data, "create")
-
         if not result_validate:
             response = message[400].copy()
             response["message"] = message_validate
             return response
  
+        # Сохранение медиа файла
         url = Media.save_media(data["file"], data["id"], folder="content")
-        if not url: return message["204"] 
+        if not url: return message["204"]
+        type_content = "img" if url[-1] == "p" else "video"
 
-        type_content = "img" if url[-1] == "p" else "video" 
-
-        post = Post.objects.create(
-                        id=data["id"],  # ID поста
-                        author=data["author"],  # ID автора поста
-                        post_name=data["postName"],  # Название поста
-                        description=data["description"],  # Описание поста
-                        type_content=type_content,  # Тип поста
-                        url=url,  # URL файла на сервере
-                        tags_list=Separement.unpacking_tags(data["tags"]), # Список комментариев
-                        aspect_ratio=data["aspectRatio"], # параметр, которые передается с фронта
-                        link=data["link"] # Ссылка для сохранения
-                        )
+        # Создание поста
+        post = Post.objects.create(id=data["id"],
+                                   author=data["author"],
+                                   post_name=data["postName"],
+                                   description=data["description"],
+                                   type_content=type_content,
+                                   url=url,
+                                   tags_list=Separement.unpacking_tags(data["tags"]),
+                                   aspect_ratio=data["aspectRatio"],
+                                   link=data["link"])
 
         return {"postId": post.id}
-    
+
 
     @staticmethod
     def change_data_post(post, data):
+        # Валидация данных
         result_validate, message_validate = Post.__validate_data(data, "edit")
-
         if not result_validate:
             response = message[400].copy()
             response["message"] = message_validate
             return response
 
+        # Установка новых данных
+        if data["postName"]: post.name = data["postName"]
+        if data["description"]: post.description = data["description"]
+        if data["link"]: post.link = data["link"]
+        if data["aspectRatio"]: post.aspect_ratio = data["aspectRatio"]
+
+        # Подготовка и установка новых тэгов
         tags = Separement.unpacking_tags(data["tags_list"])
+        if tags: post.tags_list = tags
 
-        if data["postName"]:
-            post.name = data["postName"]
-
-        if data["description"]:
-            post.description = data["description"]
-            
-        if data["link"]:
-            post.link = data["link"]
-            
-        if data["aspectRatio"]:
-            post.aspect_ratio = data["aspectRatio"]
-
-        # Подготовка тэгов
-        if tags:
-            post.tags_list = tags
-
+        # Сохранение результата
         post.save()
-
         return message[200]
-    
+
 
     @staticmethod
     def get_posts(user_tags: list, offset=0, limit=20) -> list:
-        """
-        Возвращает список постов на основе тегов пользователя, offset и limit.
-        Если offset превышает количество постов, используется режим замкнутого круга.
-        
-        :param user_tags: Список тегов пользователя для поиска (список строк).
-        :param offset: Количество постов, которые нужно пропустить.
-        :param limit: Количество постов, которые нужно вернуть.
-        :return: Список объектов Post.
-        """
         # Приведение тегов пользователя к нижнему регистру
         user_tags_normalized = [tag.lower() for tag in user_tags]
 
@@ -114,9 +97,6 @@ class Post(models.Model):
 
     @staticmethod
     def _get_posts_without_tags(offset: int, limit: int, total_posts_count: int) -> list:
-        """
-        Возвращает посты от новых к старым, без фильтрации по тегам.
-        """
         # Замкнутый круг, если offset больше количества постов
         if offset >= total_posts_count:
             offset = offset % total_posts_count
@@ -126,10 +106,6 @@ class Post(models.Model):
 
     @staticmethod
     def _get_posts_by_tags(user_tags: list, offset: int, limit: int) -> list:
-        """
-        Возвращает посты по тегам пользователя с учетом offset и limit.
-        Включает точное и частичное совпадение тегов.
-        """
         # 1. Точное совпадение тегов
         exact_match = Q()
         for tag in user_tags:
@@ -139,7 +115,7 @@ class Post(models.Model):
 
         # Пропуск постов по offset
         exact_post_count = exact_posts.count()
-        
+
         if exact_post_count >= offset + limit:
             # Если точных постов достаточно, просто возвращаем их с учетом offset и limit
             return list(exact_posts[offset:offset+limit])
@@ -149,7 +125,7 @@ class Post(models.Model):
 
         # Уменьшаем offset на количество уже взятых точных совпадений
         offset -= min(exact_post_count, offset)
-        
+
         # 2. Частичное совпадение тегов
         partial_match = Q()
         for tag in user_tags:
@@ -176,9 +152,6 @@ class Post(models.Model):
 
     @staticmethod
     def _get_posts_with_loop(offset: int, limit: int, total_posts_count: int) -> list:
-        """
-        Режим замкнутого круга: если offset больше общего количества постов, начинаем заново с самого свежего.
-        """
         # Рассчитываем новый offset для замкнутого круга
         offset = offset % total_posts_count
 
@@ -195,15 +168,9 @@ class Post(models.Model):
 
         return first_batch
 
-    
+
     @staticmethod
     def __validate_data(post_data: dict, mode: str) -> tuple:
-        """
-        Валидация данных поста при создании или редактировании.
-        :param post_data: словарь с данными поста
-        :param mode: режим, либо "create" (создание), либо "edit" (редактирование)
-        :return: кортеж - булево значение результата и сообщение об ошибке
-        """
         # Поля, которые необходимо валидировать
         fields_to_validate = ['postName', 'description', 'aspectRatio', 'link']
 
@@ -217,7 +184,7 @@ class Post(models.Model):
 
         # Список обязательных полей для режима "create"
         required_fields = ['postName', 'aspectRatio']
-        
+
         # Фильтрация данных — оставляем только те, которые нужно валидировать
         filtered_data = {field: post_data.get(field) for field in fields_to_validate}
 

@@ -18,15 +18,25 @@ class Board(models.Model):
 
 
     @staticmethod
-    def create_board(user, name):
+    def create_board(user: User, name: str) -> dict:
+        """
+        Функция создает доску в базе данных
+
+        :user: Объект класса User, который будет автором доски
+        :name: Строка, не более 35 символов
+        :return: dict
+        """
+        # Генерируем новый ID
         id_board = Encriptions.generate_string(35, Board)
-        
+
+        # Создаём доску
         board = Board.objects.create(
                             id=id_board,
                             name=name,
                             author=user
                             )
-        
+
+        # Возвращаем ID доски
         return {"dashboardId": board.id}
 
 
@@ -34,7 +44,7 @@ class Board(models.Model):
     def check_board_name(user, name) -> bool:
         """
         Функция проверяет, существует ли доска с указанным именем среди досок пользователя.
-        
+
         :param user: объект пользователя, которому принадлежат доски
         :param name: имя доски, которое нужно проверить
         :return: bool
@@ -42,21 +52,21 @@ class Board(models.Model):
         # Если список id пустой, возвращаем False
         if not user.boards.all():
             return False
-        
+
         # Ищем доски пользователя по списку id и имени доски
         if Board.objects.filter(
             Q(author=user) & Q(name=name)
         ).exists():
             return True
-        
+
         # Если совпадений нет
         return False
-    
-    
+
+
 class BoardPost(models.Model):
     board = models.ForeignKey(Board, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    added_at = models.DateTimeField(default=timezone.now)  # Дата добавления поста на доску
+    added_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        ordering = ['-added_at'] 
+        ordering = ['-added_at']

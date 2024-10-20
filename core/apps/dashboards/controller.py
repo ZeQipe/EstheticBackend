@@ -8,9 +8,8 @@ import json
 
 
 def create_dashboards(request):
-    # Поиск автора доски
+    # Проверка на авторизацию пользователя
     cookie_user = Authorization.is_authorization(request)
-    
     if isinstance(cookie_user, dict): return message[401]
     
     # Извлечение данных доски из формы
@@ -18,6 +17,7 @@ def create_dashboards(request):
     boardName = request_data.get("dashboardName", False)
     if not boardName: return message[400]
 
+    # Проверка на существование такой доски
     result = Board.check_board_name(cookie_user, boardName)
     if result:
         response = message[400].copy()
@@ -32,51 +32,51 @@ def create_dashboards(request):
 
 
 def get_boards_user_by_cookie(request):
+    # Проверка на авторизацию пользователя
     cookie_user = Authorization.is_authorization(request)
+    if isinstance(cookie_user, dict): return message[401]
     
-    if isinstance(cookie_user, dict):
-        return message[401]
-    
+    # Получение параметров offset и limit для пагинации
     offset, limit = Separement.pagination_parametrs(request)
 
+    # Формирование ответа с помощью парсера
     response = Separement.parse_dashboard_list(cookie_user, offset, limit)
-
     return response
 
 
 def check_post_in_boards(request):
+    # Проверка на авторизацию пользователя
     cookie_user = Authorization.is_authorization(request)
-    
     if isinstance(cookie_user, dict): return message[401]
-    
-    try: 
-        post = Post.objects.get(id=request.GET.get("postid", "None"))
 
-    except Exception: 
-        return message[404]
+    # Поиск поста в базе данных
+    try: post = Post.objects.get(id=request.GET.get("postid", "None"))
+    except Exception: return message[404]
     
+    # Получение всех досок пользователя
     boards = post.boards.filter(author=cookie_user)
-
     return Separement.pars_dashboards_info_in(boards)
 
 
 def remove_posts_in_board(request, boardID):
+    # Проверка на авторизацию пользователя
     cookie_user = Authorization.is_authorization(request)
-    
     if isinstance(cookie_user, dict): return message[401]
     
+    # Поиск поста и доски в базе данных
     try:
         postID = json.loads(request.body).get("postsId")
         post = Post.objects.get(id=postID)
         
         board = Board.objects.get(id=boardID)
-    except Exception as er:
-        return message[404]
+
+    except Exception: return message[404]
     
+    # Проверка наличия поста в доске
     if not board.posts.filter(id=post.id).exists(): return message[404]
     
+    # Удаления поста из доски
     board.posts.remove(post)
-    
     return message[200]
 
 
@@ -86,11 +86,10 @@ def get_user_dashboards(request, user_id):
     
     # Поиск пользователя в базе данных
     try: user = User.objects.get(id=user_id)
-    
     except Exception: return message[404]
 
+    # Формирование ответа с помощью парсера
     response = Separement.parse_dashboard_list(user, offset, limit, type="full")
-        
     return response
 
 
@@ -101,9 +100,9 @@ def get_dashboard_detail(request, id_board):
     # Поиск доски в базе данных
     try: boards = Board.objects.get(id=id_board).order_by('-created_at')
     except Exception: return message[404]
-    
+
+    # Формирование ответа с помощью парсера
     response = Separement.parse_dashboard(boards, offset, limit)
-    
     return response
 
 
@@ -111,16 +110,17 @@ def add_post_in_board(request, board_id):
     # Проверка авторизации пользователя
     cookie_user = Authorization.is_authorization(request)
     if isinstance(cookie_user, dict): return message[401]
-    
-    # Поиск доски в базе данных
-    try: board = Board.objects.get(id=board_id, author=cookie_user)
+
+    # Поиск поста и доски в базе данных
+    try:
+        postID = json.loads(request.body).get("postsId")
+        post = Post.objects.get(id=postID)
+        
+        board = Board.objects.get(id=board_id, author=cookie_user)
+
     except Exception: return message[404]
     
-    # Поиск поста в базе данных
-    data = json.loads(request.body)
-    try: post = Post.objects.get(id=data.get('postsId', ''))
-    except Exception: return message[404]
-    
+    # Проверка наличия поста в доске
     if post in board.posts.all():
         response = message[400].copy()
         response['message'] = f"This post has already been added"

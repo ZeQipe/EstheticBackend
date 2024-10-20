@@ -10,16 +10,16 @@ class Encriptions:
     def generate_string(len: int, model) -> str:
         characters = string.ascii_letters + string.digits
         key_length = len
-        
+
         if not model:
             return ''.join(random.choice(characters) for _ in range(key_length))
-        
+
         while True:
             create_id = ''.join(random.choice(characters) for _ in range(key_length))
             if not model.objects.filter(id=create_id).exists():
                 return create_id
 
-    
+
     def encrypt_string(key: str):
         """
         Шифрует данные c помощью ключа.
@@ -27,7 +27,7 @@ class Encriptions:
         :param user_id: Строка, содержащая данные пользователя.
         :return: Зашифрованные данные в виде строки.
         """
-        
+
         load_dotenv()
 
         static_key = os.getenv('CRIPTO_KEY')
@@ -44,7 +44,7 @@ class Encriptions:
         :param encrypted_id: Строка, содержащая зашифрованные данные.
         :return: Расшифрованные данные пользователя.
         """
-        
+
         load_dotenv()
 
         static_key = os.getenv('CRIPTO_KEY')

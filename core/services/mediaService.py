@@ -3,16 +3,15 @@ from pathlib import Path
 from PIL import Image
 from datetime import datetime
 from services.encriptionService import Encriptions
-from django.conf import settings  # Импортируем настройки Django
+from django.conf import settings
 
 class Media:
-    # Имя хоста сохраняем в классе
-    HOSTNAME = "http://localhost:8000"  # Это нужно будет подгрузить из .env
+    HOSTNAME = "http://localhost:8000"
 
     # Константы для допустимых расширений
     ALLOWED_IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp']
     ALLOWED_VIDEO_EXTENSIONS = ['mp4', 'mov', 'avi', 'mkv']
-    
+
     @classmethod
     def save_media(cls, file, user_id: int, folder: str = 'avatars') -> str:
         """
@@ -23,7 +22,7 @@ class Media:
         :return: Относительный путь сохранённого файла или None, если файл пустой
         """
         if not file:
-            return # Если файл не передан, возвращаем None
+            return
 
         file_extension = file.name.split('.')[-1].lower()
 
@@ -47,7 +46,6 @@ class Media:
         elif file_extension in cls.ALLOWED_VIDEO_EXTENSIONS:
             # Заглушка для видео
             return {'message':'Video processing is not implemented yet.'}
-        
         else:
             raise ValueError('Неподдерживаемый тип файла') 
 
@@ -60,7 +58,6 @@ class Media:
         :return: Полный URL
         """
         return f"{cls.HOSTNAME}{settings.MEDIA_URL}{path}"
-
 
 
     @staticmethod
@@ -107,7 +104,7 @@ class Media:
                 width, height = img.size
         except IOError:
             width, height = 'N/A', 'N/A'  # Для видео или других файлов
-        
+
         return {
             'path': file_path,
             'url': Media.get_full_url(relative_path),

@@ -7,98 +7,82 @@ from services.parserService import Separement
 
 
 def registration_users(request) -> dict:
-    """
-    Create a new user in the DB.
-    """
-
-    # Получение данных из запроса    
+    # Формируем информацию о пользователе
     request_data = MultiPartParser(request.META, request, request.upload_handlers).parse()
-
     user_data = {'id' : Encriptions.generate_string(30, User),
          'first_name' : request_data[0].get("firstName"),
-          'last_name' : request_data[0].get("lastName"), 
-          'user_name' : request_data[0].get("userName"), 
+          'last_name' : request_data[0].get("lastName"),
+          'user_name' : request_data[0].get("userName"),
               'email' : request_data[0].get("email"),
            'password' : request_data[0].get("password"),
               'media' : request_data[1].get("avatar"),
           'tags_list' : request_data[0].get("tags")}
-    
-    # Создание нового пользователя
-    try:
-        result = User.create_user(user_data)
 
-    except Exception as er:
-        result = message[500]
-    
-    return result
+    # Отправляем в базу данных запрос
+    try: user = User.create_user(user_data)
+    except Exception: return message[500]
+
+    # Формирование ответа
+    response = Separement.user_information(user, status="owner")
+    return response
 
 
-def user_profile(request, id_profile=""):
+def user_profile(request, id_profile="") -> dict:
+    # Поиск пользователя в базе данных по кукам
     cookie_user = Authorization.is_authorization(request)
-    
-    if id_profile:
-        try:    
-            user_profile = User.objects.get(id=id_profile)
 
-        except Exception as er:
-            return message[404]
-        
+    # Два варианта возврата данных
+    if id_profile:
+        # Поиск пользователя по ID
+        try: user_profile = User.objects.get(id=id_profile)
+        except Exception: return message[404]
+
+        # Формирование ответа
         response = Separement.user_information(user_profile, cookie_user)
         return response
-    
+
     else:
-        if isinstance(cookie_user, dict):
-            return message[401]
-        
+        # Поиск пользователя по кукам
+        if isinstance(cookie_user, dict): return message[401]
+
+        # Формирование ответа
         response = Separement.user_information(cookie_user, status="owner")
         return response
-    
+
 
 def edit_user_data(request):
+    # Проверка на авторизацию пользователя
     cookie_user = Authorization.is_authorization(request)
-    
-    if isinstance(cookie_user, dict):
-        return message[401]
-    
-    # Получение данных из запроса
-    put_data = MultiPartParser(request.META, request, request.upload_handlers).parse()
-    user_data = {'first_name': put_data[0].get("firstName"),
-                 'last_name': put_data[0].get("lastName"), 
-                 'user_name' : put_data[0].get("userName"),
-                 'tags_list': put_data[0].get("tags"),
-                 'media': put_data[1].get("avatar")
-                 }
-    
-    try:
-        result = User.change_user(cookie_user, user_data)
+    if isinstance(cookie_user, dict): return message[401]
 
-    except Exception as er:
-        result = message[500]
-    
-    return result
+    # Формируем информацию о пользователе
+    put_data = MultiPartParser(request.META, request, request.upload_handlers).parse()
+    user_data = {'first_name' : put_data[0].get("firstName"),
+                  'last_name' : put_data[0].get("lastName"),
+                  'user_name' : put_data[0].get("userName"),
+                  'tags_list' : put_data[0].get("tags"),
+                      'media' : put_data[1].get("avatar")}
+
+    # Отправляем в базу данных запрос
+    try: return User.change_user(cookie_user, user_data)
+    except Exception: return message[500]
 
 
 def user_created_post_list(request, userID):
-    try:
-        offset = int(request.GET.get('offset', 0))
-    except ValueError:
-        offset = 0
+    # Получаем query параметры offset и limit из запроса
+    offset, limit = Separement.pagination_parametrs(request)
 
-    try:
-        limit = int(request.GET.get('limit', 20))
-    except ValueError:
-        limit = 20
-    
-    try:
-        user = User.objects.get(id=userID)
-    except Exception as er:
+    # Поиск пользователя в базе данных
+    try: user = User.objects.get(id=userID)
+    except Exception:
         response = message[404].copy()
         response['message'] = "Not found User"
         return response
-    
+
+    # Получение постов, созданных пользователем
     posts_user = user.posts.all()
     count = user.posts.all().count()
 
+    # Формирование ответа
     response = Separement.formatted_posts(posts_user, count)
-    
     return response

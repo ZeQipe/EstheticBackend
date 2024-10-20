@@ -20,97 +20,77 @@ class User(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     status = models.CharField(default="active")
 
+
     @staticmethod
     def create_user(data):
         # Валидация входных данных на создание пользователя
         result_validate, message_validate = User.__validate_data(data, "create")
-
         if not result_validate:
             response = message[400].copy()
             response["message"] = message_validate
             return response
-        
-        try:
-            url = Media.save_media(data["media"], data["id"], "avatars")
-            user = User.objects.create(
-                                id=data["id"],
-                                first_name=data["first_name"],
-                                last_name=data["last_name"],
-                                user_name=data["user_name"],
-                                email=data["email"],
-                                password=Encriptions.encrypt_string(data["password"]),
-                                avatar=url,
-                                tags_user=Separement.unpacking_tags(data["tags_list"])
-                                )
-            
-            return Separement.user_information(user, status="owner")
 
-        except Exception as error:
-            return message[500]
+        # Сохранение медиа файла
+        url = Media.save_media(data["media"], data["id"], "avatars")
+
+        # Создание пользователя
+        user = User.objects.create(id=data["id"],
+                                   first_name=data["first_name"],
+                                   last_name=data["last_name"],
+                                   user_name=data["user_name"],
+                                   email=data["email"],
+                                   password=Encriptions.encrypt_string(data["password"]),
+                                   avatar=url,
+                                   tags_user=Separement.unpacking_tags(data["tags_list"]))
+
+        return user
 
 
     @staticmethod
     def change_user(user, data):
+        # Валидация данных
         result_validate, message_validate = User.__validate_data(data, "edit")
-
         if not result_validate:
             response = message[400].copy()
             response["message"] = message_validate
             return response
-        
+
+        # Установка новых данных
+        if data.get('first_name', False): user.first_name = data["first_name"]
+        if data.get('last_name', False): user.last_name = data["last_name"]
+        if data.get('user_name', False): user.user_name = data["user_name"]
+
+        # Подготовка и установка новых тэгов
         tags = Separement.unpacking_tags(data["tags_list"])
+        if tags: user.tags_user = tags
 
-        try:
-            url = Media.save_media(data["media"], user.id, "avatars")
-        
-        except:
-            url = False
-        
-        if data.get('first_name', False):
-            user.first_name = data["first_name"]
+        # Проверка и установка нового изображения
+        try: url = Media.save_media(data["media"], user.id, "avatars")
+        except: url = False
+        if url: user.avatar = url
 
-        if data.get('last_name', False):
-            user.last_name = data["last_name"]
-
-        if data.get('user_name', False):
-            user.user_name = data["user_name"]
-
-        if tags:
-            user.tags_user = tags
-
-        if url:
-            user.avatar = url
-
+        # Сохранение результата
         user.save()
-        
         return message[200]
 
 
     @staticmethod
     def __validate_data(data: dict, mode: str) -> tuple:
-        """
-        Валидация данных пользователя при создании или редактировании, включая проверку уникальности user_name и email.
-        :param data: словарь с данными пользователя, которые нужно валидировать
-        :param mode: режим, либо "create" (создание), либо "edit" (редактирование)
-        :return: кортеж - булево значение результата и сообщение об ошибке
-        """
         # Поля, которые должны быть валидированы
         fields_to_validate = ['first_name', 'last_name', 'user_name', 'email', 'password']
-        
+
         # Регулярные выражения для полей
-        regex_patterns = {
-            'first_name': r'^.{2,20}$',
-            'last_name': r'^.{0,20}$',
-            'user_name': r'^.{2,20}$',
-            'email': r'^.{8,20}$',
-            'password': r'^.{8,20}$'
-        }
-        
+        regex_patterns = {'first_name': r'^.{2,20}$',
+                           'last_name': r'^.{0,20}$',
+                           'user_name': r'^.{2,20}$',
+                               'email': r'^.{8,20}$',
+                            'password': r'^.{8,20}$'}
+
         # Список обязательных полей для режима "create"
         required_fields = ['first_name', 'last_name', 'user_name', 'email']
         if mode == 'create':
             required_fields.append('password')
-        
+
         # Фильтрация данных — оставляем только те, которые должны быть валидированы
         filtered_data = {field: data.get(field) for field in fields_to_validate}
 
@@ -122,7 +102,7 @@ class User(models.Model):
 
                 if not filtered_data.get(field):
                     return False, f'Ошибка запроса. Поле {field} не может быть пустым при регистрации'
-        
+
         # Итерация по полям и их валидация
         for field, value in filtered_data.items():
             # Пропуск значений None в режиме "edit"
@@ -141,11 +121,11 @@ class User(models.Model):
             # Проверка, является ли значение строкой, и соответствует ли оно регулярному выражению
             if value and not isinstance(value, str):
                 return False, f'Ошибка запроса. Поле {field} должно быть строкой'
-            
+
             # Проверка соответствия регулярному выражению
             if value and not re.match(regex_patterns[field], value):
                 return False, f'Ошибка запроса. Неверное значение для поля {field}'
-        
+
         # Проверка уникальности user_name и email
         if mode == 'create':
             # Проверка уникальности user_name и email при создании
@@ -159,5 +139,5 @@ class User(models.Model):
             # Проверка уникальности user_name при редактировании (если оно присутствует)
             if User.objects.filter(user_name=filtered_data['user_name']).exists():
                 return False, 'Ошибка запроса. Имя пользователя уже занято'
-        
+
         return True, "All data correct"
