@@ -191,8 +191,8 @@ class Separement:
                                   "lastName" : board.author.last_name,
                                   "userName" : board.author.user_name,
                                     "userId" : board.author.id,
-                                    "avatar" : Media.get_full_url(board.author.avatar) if board.avatar else None,
-                                "avatarBlur" : Media.get_full_url(board.avatar_blur) if board.avatar_blur else None},
+                                    "avatar" : Media.get_full_url(board.author.avatar) if board.author.avatar else None,
+                                "avatarBlur" : Media.get_full_url(board.author.avatar_blur) if board.author.avatar_blur else None},
                         "posts": posts['posts']}
 
         return data
