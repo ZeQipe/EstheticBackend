@@ -1,6 +1,6 @@
 from templates.answer import answer_dict as message
 from django.http import JsonResponse
-from core.apps.posts.controller import *
+from apps.posts.controller import *
 from django.views.decorators.csrf import csrf_exempt
 from services.delService import DeletterObject
 
