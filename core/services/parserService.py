@@ -57,6 +57,7 @@ class Separement:
         user_data = {"user": {"userId" : user.id,
                    "subscribersAmount" : user.subscribers.count(),
                               "avatar" : Media.get_full_url(user.avatar) if user.avatar else None,
+                          "avatarBlur" : Media.get_full_url(user.avatar_blur) if user.avatar_blur else None,
                            "firstName" : user.first_name,
                             "lastName" : user.last_name,
                             "userName" : user.user_name} }
@@ -88,6 +89,7 @@ class Separement:
             posted = {"postId" : post.id,
                  "contentType" : post.type_content,
                          "url" : Media.get_full_url(post.url),
+                     "urlBlur" : Media.get_full_url(post.url_blur),
                  "aspectRatio" : post.aspect_ratio}
             formatted_posts["posts"].append(posted)
 
@@ -102,6 +104,7 @@ class Separement:
                             "link" : post.link,
                            "media" : {"type" : post.type_content,
                                        "url" : Media.get_full_url(post.url),
+                                   "urlBlur" : Media.get_full_url(post.url_blur),
                                "aspectRatio" : post.aspect_ratio},
                        "likeCount" : post.users_liked.count(),
                    "commentsCount" : post.comments.count(),
@@ -110,7 +113,8 @@ class Separement:
                                        "lastName" : post.author.last_name,
                                        "userName" : post.author.user_name,
                                          "userId" : post.author.id,
-                                         "avatar" : Media.get_full_url(post.author.avatar)} },
+                                         "avatar" : Media.get_full_url(post.author.avatar) if post.author.avatar else None,
+                                     "avatarBlur" : Media.get_full_url(post.author.avatar_blur) if post.author.avatar_blur else None} },
                 "user" : {"isLike" : not isinstance(guest, dict) and guest in post.users_liked.all(),
                          "isOwner" : not isinstance(guest, dict) and guest.id == post.author.id} }
 
@@ -129,7 +133,8 @@ class Separement:
         if favorites_board:
             recent_posts = favorites_board.posts.order_by('-boardpost__added_at')[:5]
             response["favorites"] = {"dashboardId" : favorites_board.id,
-                                             "url" : [post.url for post in recent_posts]}
+                                             "urls" : [Media.get_full_url(post.url) for post in recent_posts],
+                                             "urlsBlur" : [Media.get_full_url(post.url_blur) for post in recent_posts]}
 
             if type == "full":
                 response["favorites"]["created_at"] = favorites_board.created_at
@@ -142,7 +147,8 @@ class Separement:
 
             board_info = {"dashboardId" : board.id,
                         "dashboardName" : board.name,
-                                 "urls" : [post.url for post in recent_posts]}
+                                 "urls" : [Media.get_full_url(post.url) for post in recent_posts],
+                             "urlsBlur" : [Media.get_full_url(post.url_blur) for post in recent_posts],}
 
             board_info["dateOfCreation"] = board.created_at
             board_info["postsAmount"] = board.posts.all().count()
@@ -181,11 +187,12 @@ class Separement:
                                 "dashboardName": board.name,
                                   "postsAmount": post_count,
                                "dateOfCreation": formatted_date},
-                       "author":{"firstName": board.author.first_name,
-                                  "lastName": board.author.last_name,
-                                  "userName": board.author.user_name,
-                                    "userId": board.author.id,
-                                    "avatar": board.author.avatar},
+                       "author":{"firstName" : board.author.first_name,
+                                  "lastName" : board.author.last_name,
+                                  "userName" : board.author.user_name,
+                                    "userId" : board.author.id,
+                                    "avatar" : Media.get_full_url(board.author.avatar) if board.avatar else None,
+                                "avatarBlur" : Media.get_full_url(board.avatar_blur) if board.avatar_blur else None},
                         "posts": posts['posts']}
 
         return data

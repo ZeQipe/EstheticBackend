@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from PIL import Image
+from PIL import Image, ImageFilter
 from datetime import datetime
 from services.encriptionService import Encriptions
 from django.conf import settings
@@ -22,7 +22,7 @@ class Media:
         :return: Относительный путь сохранённого файла или None, если файл пустой
         """
         if not file:
-            return
+            return None, None
 
         file_extension = file.name.split('.')[-1].lower()
 
@@ -36,18 +36,52 @@ class Media:
 
             # Сжимаем изображение и сохраняем в формате webp 
             with Image.open(file) as img:
-                img.save(save_path, format='webp', quality=90)
+                img.save(save_path, format='webp', quality=75)
 
             # Возвращаем относительный путь к файлу
             relative_path = os.path.join('webp', folder, file_name)
+            thumbnail_url = cls.create_blurred_thumbnail(file, file_name, folder)
 
-            return relative_path
+            return relative_path, thumbnail_url
 
         elif file_extension in cls.ALLOWED_VIDEO_EXTENSIONS:
             # Заглушка для видео
-            return {'message':'Video processing is not implemented yet.'}
+            result = {'message':'Video processing is not implemented yet.'}
+            return result, result
         else:
-            raise ValueError('Неподдерживаемый тип файла') 
+            raise ValueError('Неподдерживаемый тип файла')
+        
+
+    @classmethod
+    def create_blurred_thumbnail(cls, file, file_name, folder: str) -> str:
+        """
+        Создание замыленной миниатюры изображения
+        :param file: Оригинальный файл изображения
+        :param file_name: Имя файла
+        :param folder: Папка для сохранения миниатюры
+        :return: Относительный путь к миниатюре
+        """
+        # Путь для сохранения замыленной миниатюры
+        thumbnail_path = os.path.join(settings.MEDIA_ROOT, 'webp', folder, 'thumbnails', file_name)
+
+        # Создаем директорию, если её нет
+        os.makedirs(os.path.dirname(thumbnail_path), exist_ok=True)
+
+        # Настройки для размытия и уменьшения изображения
+        blur_radius = 2  # Радиус размытия. Чем больше значение, тем сильнее размытие.
+        size = (320, 640)   # Размер миниатюры. Определяет ширину и высоту итогового изображения.
+        quality = 10      # Качество миниатюры (1-100). Чем меньше число, тем сильнее сжатие и хуже качество, но меньше размер файла.
+
+        # Обрабатываем изображение и создаем миниатюру
+        with Image.open(file) as img:
+            img.thumbnail(size)  # Уменьшаем изображение до указанных размеров
+            blurred_img = img.filter(ImageFilter.GaussianBlur(blur_radius))  # Размываем изображение
+            blurred_img.save(thumbnail_path, format='webp', quality=quality)  # Сохраняем миниатюру
+
+        # Генерируем относительный путь к миниатюре
+        relative_thumbnail_path = os.path.join('webp', folder, 'thumbnails', file_name)
+
+        return relative_thumbnail_path
 
 
     @classmethod

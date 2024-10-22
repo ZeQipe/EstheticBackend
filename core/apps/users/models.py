@@ -15,6 +15,7 @@ class User(models.Model):
     email = models.EmailField(max_length=30, unique=True)
     password = models.TextField()
     avatar = models.TextField(unique=True, blank=True, null=True)
+    avatar_blur = models.TextField(unique=True, blank=True, null=True)
     tags_user = models.JSONField(default=list)
     subscribers = models.ManyToManyField("self", symmetrical=False, related_name="following", blank=True)
     created_at = models.DateTimeField(default=timezone.now)
@@ -31,7 +32,7 @@ class User(models.Model):
             return response
 
         # Сохранение медиа файла
-        url = Media.save_media(data["media"], data["id"], "avatars")
+        url, url_blur = Media.save_media(data["media"], data["id"], "avatars")
 
         # Создание пользователя
         user = User.objects.create(id=data["id"],
@@ -41,6 +42,7 @@ class User(models.Model):
                                    email=data["email"],
                                    password=Encriptions.encrypt_string(data["password"]),
                                    avatar=url,
+                                   avatar_blur=url_blur,
                                    tags_user=Separement.unpacking_tags(data["tags_list"]))
 
         return user
@@ -65,9 +67,10 @@ class User(models.Model):
         if tags: user.tags_user = tags
 
         # Проверка и установка нового изображения
-        try: url = Media.save_media(data["media"], user.id, "avatars")
+        try: url, url_blur = Media.save_media(data["media"], user.id, "avatars")
         except: url = False
         if url: user.avatar = url
+        if url_blur: user.avatar_blur = url_blur
 
         # Сохранение результата
         user.save()

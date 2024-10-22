@@ -23,7 +23,8 @@ def registration_users(request) -> dict:
     except Exception: return message[500]
 
     # Формирование ответа
-    response = Separement.user_information(user, status="owner")
+    if isinstance(user, User): response = Separement.user_information(user, status="owner")
+    else: response = user
     return response
 
 

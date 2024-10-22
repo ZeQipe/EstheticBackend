@@ -16,6 +16,7 @@ class Post(models.Model):
     users_liked = models.ManyToManyField(User, related_name='liked_posts', blank=True)
     type_content = models.TextField()
     url = models.TextField(unique=True)
+    url_blur = models.TextField(unique=True)
     tags_list = models.JSONField(default=list)
     aspect_ratio = models.TextField(blank=True, null=True)
     link = models.CharField(max_length=100, null=True)
@@ -32,7 +33,7 @@ class Post(models.Model):
             return response
  
         # Сохранение медиа файла
-        url = Media.save_media(data["file"], data["id"], folder="content")
+        url, url_blur = Media.save_media(data["file"], data["id"], folder="content")
         if not url: return message["204"]
         type_content = "img" if url[-1] == "p" else "video"
 
@@ -43,6 +44,7 @@ class Post(models.Model):
                                    description=data["description"],
                                    type_content=type_content,
                                    url=url,
+                                   url_blur=url_blur,
                                    tags_list=Separement.unpacking_tags(data["tags"]),
                                    aspect_ratio=data["aspectRatio"],
                                    link=data["link"])
