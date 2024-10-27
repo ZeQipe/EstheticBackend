@@ -1,9 +1,12 @@
 import os
-from pathlib import Path
 from PIL import Image, ImageFilter
 from datetime import datetime
 from services.encriptionService import Encriptions
 from django.conf import settings
+from dotenv import load_dotenv
+
+
+load_dotenv()
 
 class Media:
     HOSTNAME = "http://localhost:8000"
@@ -38,7 +41,7 @@ class Media:
             with Image.open(file) as img:
                 img.save(save_path, format='webp', quality=75)
 
-            # Возвращаем относительный путь к файлу
+            # Возвращаем относительный путь к файлам
             relative_path = os.path.join('webp', folder, file_name)
             thumbnail_url = cls.create_blurred_thumbnail(file, file_name, folder)
 

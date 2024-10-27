@@ -33,9 +33,9 @@ INSTALLED_APPS = [
     'apps.dashboards'
 ]
 
-CSRF_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = True
 CSRF_COOKIE_HTTPONLY = False
-CSRF_COOKIE_SAMESITE = None
+CSRF_COOKIE_SAMESITE = "None"
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',

@@ -39,7 +39,7 @@ class Authorization:
                             value=cookie_key,
                             httponly=True,
                             secure=False,
-                            samesite='Lax',
+                            samesite='None',
                             max_age=604800)  # срок жизни куки. число - 1 неделя в секундах
 
         return response
