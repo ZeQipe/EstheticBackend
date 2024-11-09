@@ -66,8 +66,7 @@ class Separement:
             user_data['user']['email'] = user.email
             user_data['user']['tags'] = Separement.packing_tags(user.tags_user)
 
-        elif cookie_user:
-            if not isinstance(cookie_user, dict):
+        elif not isinstance(cookie_user, dict):
                 if cookie_user.id == user.id:
                     user_data['user']['email'] = user.email
                     user_data['guest'] = {"isOwner" : True,
@@ -76,6 +75,10 @@ class Separement:
                 else:
                     user_data['guest'] = {"isOwner" : False,
                                       "isSubscribe" : True if cookie_user in user.subscribers.all() else False}
+        else:
+            user_data['guest'] = {"isOwner" : False,
+                              "isSubscribe" : False}
+
 
         return user_data["user"] if status == "owner" else user_data
 

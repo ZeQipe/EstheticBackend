@@ -39,7 +39,7 @@ def user_profile(request, id_profile="") -> dict:
         except Exception: return message[404]
 
         # Формирование ответа
-        response = Separement.user_information(user_profile, cookie_user)
+        response = Separement.user_information(user_profile, cookie_user=cookie_user)
         return response
 
     else:
