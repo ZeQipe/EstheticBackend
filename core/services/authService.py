@@ -38,7 +38,7 @@ class Authorization:
         response.set_cookie(key='auth_key',
                             value=cookie_key,
                             httponly=True,
-                            secure=False,
+                            secure=True,
                             samesite='None',
                             max_age=604800)  # срок жизни куки. число - 1 неделя в секундах
 
