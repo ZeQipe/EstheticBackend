@@ -125,36 +125,61 @@ class Separement:
 
 
     @staticmethod
-    def parse_dashboard_list(user, start, end, type = False):
-        response = {"dashboardsAmount" : user.boards.count(),
-                           "favorites" : None,
-                          "dashboards" : []}
+    def parse_dashboard_list(user, start, end, BoardPost, Post, type=False):
+        response = {
+            "dashboardsAmount": user.boards.count(),
+            "favorites": None,
+            "dashboards": []
+        }
 
         boards = user.boards.all()
         favorites_board = boards.filter(name="Избранное").first()
 
         if favorites_board:
-            recent_posts = favorites_board.posts.order_by('-boardpost__added_at')[:5]
-            response["favorites"] = {"dashboardId" : favorites_board.id,
-                                             "urls" : [Media.get_full_url(post.url) for post in recent_posts],
-                                             "urlsBlur" : [Media.get_full_url(post.url_blur) for post in recent_posts]}
+            # Получаем последние 5 постов из избранной доски, отсортированных по 'added_at'
+            recent_post_ids = (
+                BoardPost.objects.filter(board=favorites_board)
+                .order_by('-added_at')
+                .values_list('post', flat=True)[:5]
+            )
+            recent_posts = Post.objects.filter(id__in=recent_post_ids)
 
+            # Добавляем в ответ информацию о избранных постах
+            response["favorites"] = {
+                "dashboardId": favorites_board.id,
+                "urls": [Media.get_full_url(post.url) for post in recent_posts],
+                "urlsBlur": [Media.get_full_url(post.url_blur) for post in recent_posts]
+            }
+
+            # Если тип "full", добавляем дату создания и количество постов
             if type == "full":
                 response["favorites"]["created_at"] = favorites_board.created_at
                 response["favorites"]["postsAmount"] = favorites_board.posts.all().count()
 
+            # Уменьшаем количество досок на 1, так как "Избранное" уже включено
             response["dashboardsAmount"] -= 1
 
+        # Перебираем остальные доски пользователя (кроме "Избранного")
         for board in boards.exclude(name="Избранное")[start:start+end]:
-            recent_posts = board.posts.order_by('-boardpost__added_at')[:3]
+            # Получаем последние 5 постов из текущей доски
+            recent_post_ids = (
+                BoardPost.objects.filter(board=board)
+                .order_by('-added_at')
+                .values_list('post', flat=True)[:5]
+            )
+            recent_posts = Post.objects.filter(id__in=recent_post_ids)
 
-            board_info = {"dashboardId" : board.id,
-                        "dashboardName" : board.name,
-                                 "urls" : [Media.get_full_url(post.url) for post in recent_posts],
-                             "urlsBlur" : [Media.get_full_url(post.url_blur) for post in recent_posts],}
+            # Формируем информацию о текущей доске
+            board_info = {
+                "dashboardId": board.id,
+                "dashboardName": board.name,
+                "urls": [Media.get_full_url(post.url) for post in recent_posts],
+                "urlsBlur": [Media.get_full_url(post.url_blur) for post in recent_posts],
+                "dateOfCreation": board.created_at,
+                "postsAmount": board.posts.count()
+            }
 
-            board_info["dateOfCreation"] = board.created_at
-            board_info["postsAmount"] = board.posts.all().count()
+            # Добавляем информацию о доске в список
             response["dashboards"].append(board_info)
 
         return response
@@ -175,28 +200,40 @@ class Separement:
 
 
     @staticmethod
-    def parse_dashboard(board):
+    def parse_dashboard(board, Post, BoardPost):
         # Получение и форматирование даты создания доски
         created_at = board.created_at
         formatted_date = DateFormat(created_at.astimezone(get_current_timezone())).format('Y-m-d\TH:i:sP')
 
         # Получение и форматирование постов
-        all_posts = board.posts.order_by('-boardpost__added_at')
-        post_count = all_posts.count()
-        posts = Separement.formatted_posts(all_posts, post_count)
+        recent_post_ids = (
+            BoardPost.objects.filter(board=board)
+            .order_by('-added_at')
+            .values_list('post', flat=True)[:5]
+        )
+        recent_posts = Post.objects.filter(id__in=recent_post_ids)
 
-        # Формирование инфорации о доске
-        data = {"dashboardInfo": {"dashboardId": board.id,
-                                "dashboardName": board.name,
-                                  "postsAmount": post_count,
-                               "dateOfCreation": formatted_date},
-                       "author":{"firstName" : board.author.first_name,
-                                  "lastName" : board.author.last_name,
-                                  "userName" : board.author.user_name,
-                                    "userId" : board.author.id,
-                                    "avatar" : Media.get_full_url(board.author.avatar) if board.author.avatar else None,
-                                "avatarBlur" : Media.get_full_url(board.author.avatar_blur) if board.author.avatar_blur else None},
-                        "posts": posts['posts']}
+        # Формирование списка постов
+        posts = Separement.formatted_posts(recent_posts, recent_posts.count())
+
+        # Формирование информации о доске
+        data = {
+            "dashboardInfo": {
+                "dashboardId": board.id,
+                "dashboardName": board.name,
+                "postsAmount": board.posts.count(),
+                "dateOfCreation": formatted_date
+            },
+            "author": {
+                "firstName": board.author.first_name,
+                "lastName": board.author.last_name,
+                "userName": board.author.user_name,
+                "userId": board.author.id,
+                "avatar": Media.get_full_url(board.author.avatar) if board.author.avatar else None,
+                "avatarBlur": Media.get_full_url(board.author.avatar_blur) if board.author.avatar_blur else None
+            },
+            "posts": posts['posts']
+        }
 
         return data
     

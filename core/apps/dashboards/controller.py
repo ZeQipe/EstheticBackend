@@ -1,6 +1,6 @@
 from templates.answer import answer_dict as message
 from services.authService import Authorization
-from apps.dashboards.models import Board
+from apps.dashboards.models import Board, BoardPost
 from apps.posts.models import Post
 from apps.users.models import User
 from services.parserService import Separement
@@ -40,7 +40,7 @@ def get_boards_user_by_cookie(request):
     offset, limit = Separement.pagination_parametrs(request)
 
     # Формирование ответа с помощью парсера
-    response = Separement.parse_dashboard_list(cookie_user, offset, limit)
+    response = Separement.parse_dashboard_list(cookie_user, offset, limit, BoardPost=BoardPost, Post=Post)
     return response
 
 
@@ -89,7 +89,7 @@ def get_user_dashboards(request, user_id):
     except Exception: return message[404]
 
     # Формирование ответа с помощью парсера
-    response = Separement.parse_dashboard_list(user, offset, limit, type="full")
+    response = Separement.parse_dashboard_list(user, offset, limit, BoardPost=BoardPost, Post=Post, type="full")
     return response
 
 
@@ -99,7 +99,7 @@ def get_dashboard_detail(request, id_board):
     except Exception: return message[404]
 
     # Формирование ответа с помощью парсера
-    response = Separement.parse_dashboard(boards)
+    response = Separement.parse_dashboard(boards, Post, BoardPost)
     return response
 
 
