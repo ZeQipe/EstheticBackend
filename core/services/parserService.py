@@ -2,7 +2,6 @@ from services.encriptionService import Encriptions
 from services.mediaService import Media
 from django.utils.dateformat import DateFormat
 from django.utils.timezone import get_current_timezone
-from apps.dashboards.models import BoardPost
 import json
 
 

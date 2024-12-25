@@ -1,6 +1,4 @@
 from django.db import models
-from apps.users.models import User
-from apps.posts.models import Post
 from django.utils import timezone
 from django.db.models import Q
 from services.encriptionService import Encriptions
@@ -11,14 +9,14 @@ from django.contrib.postgres.fields import ArrayField
 class Board(models.Model):
     id = models.CharField(max_length=45, primary_key=True)
     name = models.CharField(max_length=35)
-    posts = models.ManyToManyField(Post, related_name='boards', blank=True)
-    author = models.ForeignKey(User, related_name='boards', on_delete=models.CASCADE)
+    posts = models.ManyToManyField("posts.Post", related_name='boards', blank=True)
+    author = models.ForeignKey('users.User', related_name='boards', on_delete=models.CASCADE)
     created_at = models.DateTimeField(default=timezone.now)
     recent_photo_urls = ArrayField(models.URLField(), size=5, blank=True, default=list)
 
 
     @staticmethod
-    def create_board(user: User, name: str) -> dict:
+    def create_board(user, name: str) -> dict:
         """
         Функция создает доску в базе данных
 
@@ -65,7 +63,7 @@ class Board(models.Model):
 
 class BoardPost(models.Model):
     board = models.ForeignKey(Board, on_delete=models.CASCADE)
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    post = models.ForeignKey('users.User', on_delete=models.CASCADE)
     added_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
