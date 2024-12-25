@@ -2,6 +2,7 @@ from services.encriptionService import Encriptions
 from services.mediaService import Media
 from django.utils.dateformat import DateFormat
 from django.utils.timezone import get_current_timezone
+from apps.dashboards.models import BoardPost
 import json
 
 
@@ -146,7 +147,7 @@ class Separement:
             response["dashboardsAmount"] -= 1
 
         for board in boards.exclude(name="Избранное")[start:start+end]:
-            recent_posts = board.posts.order_by('-boardpost__added_at')[:5]
+            recent_posts = board.posts.order_by('-boardpost__added_at')[:3]
 
             board_info = {"dashboardId" : board.id,
                         "dashboardName" : board.name,
@@ -199,3 +200,22 @@ class Separement:
                         "posts": posts['posts']}
 
         return data
+    
+
+    @staticmethod
+    def formatted_comments(data, guest, offset=0, limit=20):
+        response = {"count" : data.count(),
+                 "comments" : {}}
+        for comment in data[offset, offset+limit]:
+            buff = {"id" : comment.id,
+                  "text" : comment.text,
+                "author" : {"id" : comment.author.id,
+                     "firstName" : comment.author.first_name,
+                      "lastName" : comment.author.last_name,
+                      "userName" : comment.author.user_name,
+                        "avatar" : Media.get_full_url(comment.author.avatar) if comment.author.avatar else None,
+                    "avatarBlur" : Media.get_full_url(comment.author.avatar_blur) if comment.author.avatar_blur else None},
+               "isOwner" : not isinstance(guest, dict) and guest.id == comment.author.id,
+                "answer" : comment.answer,
+            "likesCount" : comment.users_liked.count(),
+        "dateOfCreation" : DateFormat(comment.created_at.astimezone(get_current_timezone())).format('Y-m-d\TH:i:sP')}

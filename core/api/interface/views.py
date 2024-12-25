@@ -37,8 +37,8 @@ def serve_webp_content(request, file_path):
 def admin(request):
     if request.method == "GET":
         try:
-            # from services.generate2 import start 
-            # response = start(request)
+            from services.generate2 import start 
+            response = start(request)
             print("Успешно!")
 
         except Exception as er:

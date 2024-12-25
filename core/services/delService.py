@@ -1,8 +1,6 @@
 from .authService import Authorization
 from templates.answer import answer_dict as message
-from apps.comments.models import Comment
 from apps.dashboards.models import Board
-from apps.posts.models import Post
 from apps.users.models import User
 
 
