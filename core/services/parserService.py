@@ -147,8 +147,8 @@ class Separement:
             # Добавляем в ответ информацию о избранных постах
             response["favorites"] = {
                 "dashboardId": favorites_board.id,
-                "urls": [Media.get_full_url(post.url) for post in recent_posts],
-                "urlsBlur": [Media.get_full_url(post.url_blur) for post in recent_posts]
+                "urls": [Media.get_full_url(post.url) for post in recent_posts.all()],
+                "urlsBlur": [Media.get_full_url(post.url_blur) for post in recent_posts.all()]
             }
 
             # Если тип "full", добавляем дату создания и количество постов
@@ -165,7 +165,7 @@ class Separement:
             recent_post_ids = (
                 BoardPost.objects.filter(board=board)
                 .order_by('-added_at')
-                .values_list('post', flat=True)[:5]
+                .values_list('post', flat=True)[:3]
             )
             recent_posts = Post.objects.filter(id__in=recent_post_ids)
 
@@ -173,8 +173,8 @@ class Separement:
             board_info = {
                 "dashboardId": board.id,
                 "dashboardName": board.name,
-                "urls": [Media.get_full_url(post.url) for post in recent_posts],
-                "urlsBlur": [Media.get_full_url(post.url_blur) for post in recent_posts],
+                "urls": [Media.get_full_url(post.url) for post in recent_posts.all()],
+                "urlsBlur": [Media.get_full_url(post.url_blur) for post in recent_posts.all()],
                 "dateOfCreation": board.created_at,
                 "postsAmount": board.posts.count()
             }
@@ -214,7 +214,7 @@ class Separement:
         recent_posts = Post.objects.filter(id__in=recent_post_ids)
 
         # Формирование списка постов
-        posts = Separement.formatted_posts(recent_posts, recent_posts.count())
+        posts = Separement.formatted_posts(recent_posts.all(), recent_posts.count())
 
         # Формирование информации о доске
         data = {
