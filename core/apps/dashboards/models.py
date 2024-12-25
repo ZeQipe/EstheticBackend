@@ -63,7 +63,7 @@ class Board(models.Model):
 
 class BoardPost(models.Model):
     board = models.ForeignKey(Board, on_delete=models.CASCADE)
-    post = models.ForeignKey('users.User', on_delete=models.CASCADE)
+    post = models.ForeignKey('posts.Post', on_delete=models.CASCADE)
     added_at = models.DateTimeField(default=timezone.now)
 
     class Meta:

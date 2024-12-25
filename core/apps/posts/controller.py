@@ -63,7 +63,7 @@ def search_posts(request):
 
     # Получаем посты из базы данных с учетом тегов, offset и limit
     try: result = Post.get_posts(tags_user, offset, limit)
-    except Exception: response = message[500]
+    except Exception: return message[500]
 
     # Формирование ответа с помощью парсера
     response = Separement.formatted_posts(result, Post.objects.all().count())

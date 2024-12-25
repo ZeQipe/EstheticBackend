@@ -84,26 +84,32 @@ class Post(models.Model):
         # Всего постов в базе
         total_posts_count = Post.objects.all().count()
 
+        # Если в базе данных нет ни одного поста:
+        if total_posts_count == 0:
+            return []
+
         # Режим 1: Если нет тегов, возвращаем посты от новых к старым
         if not user_tags_normalized:
-            return Post._get_posts_without_tags(offset, limit, total_posts_count)
-
+            result =  Post._get_posts_without_tags(offset, limit, total_posts_count)
+            return result
+        
         # Режим 2: Если есть теги, ищем по тегам
         posts_by_tags = Post._get_posts_by_tags(user_tags_normalized, offset, limit)
-
+        
         # Режим 3: Если offset больше количества постов — замкнутый круг
         if offset >= total_posts_count:
             return Post._get_posts_with_loop(offset, limit, total_posts_count)
-
-        return posts_by_tags
+        
+        return posts_by_tags 
 
     @staticmethod
     def _get_posts_without_tags(offset: int, limit: int, total_posts_count: int) -> list:
         # Замкнутый круг, если offset больше количества постов
         if offset >= total_posts_count:
             offset = offset % total_posts_count
-
+        
         posts = Post.objects.order_by('-created_at')[offset:offset+limit]
+        
         return list(posts)
 
     @staticmethod

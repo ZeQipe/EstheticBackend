@@ -48,7 +48,12 @@ def usersLogout(request):
 
         else:
             response = JsonResponse(message[200], status=200)
-            response.delete_cookie("auth_key")
+            response.set_cookie(key='auth_key',
+                                value="cookie_key",
+                                httponly=True,
+                                secure=True,
+                                samesite='None',
+                                max_age=1)
 
     else: response = JsonResponse(message[405], status=405)
 
@@ -97,7 +102,10 @@ def usersCreatedPosts(request, userID):
 @csrf_exempt
 def check_auth(request):
     # Проверка авторизации пользователя
-    if request.method == "GET": response = {"isAuth": not isinstance(Authorization.is_authorization(request), dict)}
+    try:
+        if request.method == "GET": response = {"isAuth": not isinstance(Authorization.is_authorization(request), dict)}
 
-    else: response = message[405]
-    return JsonResponse(response, status=response.get("status", 200))
+        else: response = message[405]
+        return JsonResponse(response, status=response.get("status", 200))
+        
+    except Exception: return  JsonResponse({"isAuth": False}, status=200)

@@ -38,9 +38,10 @@ def get_boards_user_by_cookie(request):
     
     # Получение параметров offset и limit для пагинации
     offset, limit = Separement.pagination_parametrs(request)
+    print(BoardPost.objects.all(), "gg")  
 
     # Формирование ответа с помощью парсера
-    response = Separement.parse_dashboard_list(cookie_user, offset, limit, BoardPost=BoardPost, Post=Post)
+    response = Separement.parse_dashboard_list(cookie_user, offset, limit, BoardPost=BoardPost)
     return response
 
 
@@ -77,19 +78,21 @@ def remove_posts_in_board(request, boardID):
     
     # Удаления поста из доски
     board.posts.remove(post)
+    BoardPost.objects.filter(board=board, post=post).delete()
     return message[200]
 
 
 def get_user_dashboards(request, user_id):
     # Получаем query параметры offset и limit из запроса
     offset, limit = Separement.pagination_parametrs(request)
-    
+    print(BoardPost.objects.all(), "gg")
+
     # Поиск пользователя в базе данных
     try: user = User.objects.get(id=user_id)
     except Exception: return message[404]
 
     # Формирование ответа с помощью парсера
-    response = Separement.parse_dashboard_list(user, offset, limit, BoardPost=BoardPost, Post=Post, type="full")
+    response = Separement.parse_dashboard_list(user, offset, limit, BoardPost=BoardPost, type="full")
     return response
 
 
@@ -99,7 +102,7 @@ def get_dashboard_detail(request, id_board):
     except Exception: return message[404]
 
     # Формирование ответа с помощью парсера
-    response = Separement.parse_dashboard(boards, Post, BoardPost)
+    response = Separement.parse_dashboard(boards, BoardPost)
     return response
 
 
@@ -125,4 +128,8 @@ def add_post_in_board(request, board_id):
     
     # Добавления поста в доску
     board.posts.add(post)
+
+    # Добавление записи в BoardPost
+    BoardPost.objects.create(board=board, post=post)
+    
     return message[200]

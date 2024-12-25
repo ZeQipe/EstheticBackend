@@ -17,10 +17,20 @@ def create_comments(request, postId):
 
     # Формируем информацию о посте
     data = MultiPartParser(request.META, request, request.upload_handlers).parse()
+    answerId = data[0].get("answer", default="None")
+    if answerId != "None":
+        try: answerComment = Comments.objects.get(answerId)
+        except Exception: 
+            response = message[404]
+            response["error"] = "Комментарий, на который Вы пытались ответить, не найден."
+            return response
+        
+    else: answerComment = "None"
+
     comments_data = {"id" : Encriptions.generate_string(50, Comments),
                    "text" : data[0].get("text"),
                  "author" : cookie_user,
-                 "answer" : data[0].get("answer", default="None"),
+                 "answer" : answerComment,
                    "post" : post}
     
     try: return Comments.create(comments_data)
@@ -42,7 +52,7 @@ def get_comments(request, postId):
     if comments.count() == 0:
         return {"comments" : None}
     else:
-        response = Separement.formatted_comments(comments, cookie_user, offset, limit)
+        response = Separement.formatted_comments(comments, cookie_user, offset, limit, modelComments=Comments)
         return response
 
 

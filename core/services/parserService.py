@@ -125,61 +125,41 @@ class Separement:
 
 
     @staticmethod
-    def parse_dashboard_list(user, start, end, BoardPost, Post, type=False):
-        response = {
-            "dashboardsAmount": user.boards.count(),
-            "favorites": None,
-            "dashboards": []
-        }
+    def parse_dashboard_list(user, start, end, BoardPost, type = False):
+        response = {"dashboardsAmount" : user.boards.count(),
+                           "favorites" : None,
+                          "dashboards" : []}
+
+
 
         boards = user.boards.all()
         favorites_board = boards.filter(name="Избранное").first()
 
         if favorites_board:
-            # Получаем последние 5 постов из избранной доски, отсортированных по 'added_at'
-            recent_post_ids = (
-                BoardPost.objects.filter(board=favorites_board)
-                .order_by('-added_at')
-                .values_list('post', flat=True)[:5]
-            )
-            recent_posts = Post.objects.filter(id__in=recent_post_ids)
+            # Получение и форматирование постов
+            all_posts = BoardPost.objects.filter(board=board).order_by('-added_at')
 
-            # Добавляем в ответ информацию о избранных постах
-            response["favorites"] = {
-                "dashboardId": favorites_board.id,
-                "urls": [Media.get_full_url(post.url) for post in recent_posts.all()],
-                "urlsBlur": [Media.get_full_url(post.url_blur) for post in recent_posts.all()]
-            }
+            recent_posts = BoardPost.objects.filter(board=favorites_board).order_by('-added_at')[:5]
+            response["favorites"] = {"dashboardId" : favorites_board.id,
+                                             "urls" : [Media.get_full_url(obj.post.url) for obj in recent_posts.all()],
+                                             "urlsBlur" : [Media.get_full_url(obj.post.url_blur) for obj in recent_posts]}
 
-            # Если тип "full", добавляем дату создания и количество постов
             if type == "full":
                 response["favorites"]["created_at"] = favorites_board.created_at
                 response["favorites"]["postsAmount"] = favorites_board.posts.all().count()
 
-            # Уменьшаем количество досок на 1, так как "Избранное" уже включено
             response["dashboardsAmount"] -= 1
 
-        # Перебираем остальные доски пользователя (кроме "Избранного")
         for board in boards.exclude(name="Избранное")[start:start+end]:
-            # Получаем последние 5 постов из текущей доски
-            recent_post_ids = (
-                BoardPost.objects.filter(board=board)
-                .order_by('-added_at')
-                .values_list('post', flat=True)[:3]
-            )
-            recent_posts = Post.objects.filter(id__in=recent_post_ids)
+            recent_posts = BoardPost.objects.filter(board=board).order_by('-added_at')[:3]
 
-            # Формируем информацию о текущей доске
-            board_info = {
-                "dashboardId": board.id,
-                "dashboardName": board.name,
-                "urls": [Media.get_full_url(post.url) for post in recent_posts.all()],
-                "urlsBlur": [Media.get_full_url(post.url_blur) for post in recent_posts.all()],
-                "dateOfCreation": board.created_at,
-                "postsAmount": board.posts.count()
-            }
+            board_info = {"dashboardId" : board.id,
+                        "dashboardName" : board.name,
+                                 "urls" : [Media.get_full_url(obj.post.url) for obj in recent_posts.all()],
+                             "urlsBlur" : [Media.get_full_url(obj.post.url_blur) for obj in recent_posts.all()],}
 
-            # Добавляем информацию о доске в список
+            board_info["dateOfCreation"] = board.created_at
+            board_info["postsAmount"] = board.posts.all().count()
             response["dashboards"].append(board_info)
 
         return response
@@ -200,49 +180,44 @@ class Separement:
 
 
     @staticmethod
-    def parse_dashboard(board, Post, BoardPost):
+    def parse_dashboard(board, BoardPost):
         # Получение и форматирование даты создания доски
         created_at = board.created_at
         formatted_date = DateFormat(created_at.astimezone(get_current_timezone())).format('Y-m-d\TH:i:sP')
 
         # Получение и форматирование постов
-        recent_post_ids = (
-            BoardPost.objects.filter(board=board)
-            .order_by('-added_at')
-            .values_list('post', flat=True)[:5]
-        )
-        recent_posts = Post.objects.filter(id__in=recent_post_ids)
+        all_posts = BoardPost.objects.filter(board=board).order_by('-added_at')
+        post_count = all_posts.count()
+        posts = Separement.formatted_posts([i.post for i in all_posts.all()], post_count)
 
-        # Формирование списка постов
-        posts = Separement.formatted_posts(recent_posts.all(), recent_posts.count())
-
-        # Формирование информации о доске
-        data = {
-            "dashboardInfo": {
-                "dashboardId": board.id,
-                "dashboardName": board.name,
-                "postsAmount": board.posts.count(),
-                "dateOfCreation": formatted_date
-            },
-            "author": {
-                "firstName": board.author.first_name,
-                "lastName": board.author.last_name,
-                "userName": board.author.user_name,
-                "userId": board.author.id,
-                "avatar": Media.get_full_url(board.author.avatar) if board.author.avatar else None,
-                "avatarBlur": Media.get_full_url(board.author.avatar_blur) if board.author.avatar_blur else None
-            },
-            "posts": posts['posts']
-        }
+        # Формирование инфорации о доске
+        data = {"dashboardInfo": {"dashboardId": board.id,
+                                "dashboardName": board.name,
+                                  "postsAmount": post_count,
+                               "dateOfCreation": formatted_date},
+                       "author":{"firstName" : board.author.first_name,
+                                  "lastName" : board.author.last_name,
+                                  "userName" : board.author.user_name,
+                                    "userId" : board.author.id,
+                                    "avatar" : Media.get_full_url(board.author.avatar) if board.author.avatar else None,
+                                "avatarBlur" : Media.get_full_url(board.author.avatar_blur) if board.author.avatar_blur else None},
+                        "posts": posts['posts']}
 
         return data
-    
+
 
     @staticmethod
-    def formatted_comments(data, guest, offset=0, limit=20):
+    def formatted_comments(data, guest, modelComments, offset=0, limit=20):
         response = {"count" : data.count(),
-                 "comments" : {}}
+                 "comments" : []}
         for comment in data[offset, offset+limit]:
+            answers = comment.answer
+            if answers != "None":
+                answer_info = {"commentId" : answers.id,
+                              "userId" : answers.author.id,
+                           "firstName" : answers.author.first_name,
+                            "lastname" : comment.author.first_name}
+
             buff = {"id" : comment.id,
                   "text" : comment.text,
                 "author" : {"id" : comment.author.id,
@@ -252,6 +227,11 @@ class Separement:
                         "avatar" : Media.get_full_url(comment.author.avatar) if comment.author.avatar else None,
                     "avatarBlur" : Media.get_full_url(comment.author.avatar_blur) if comment.author.avatar_blur else None},
                "isOwner" : not isinstance(guest, dict) and guest.id == comment.author.id,
-                "answer" : comment.answer,
+                "answer" : answer_info,
             "likesCount" : comment.users_liked.count(),
-        "dateOfCreation" : DateFormat(comment.created_at.astimezone(get_current_timezone())).format('Y-m-d\TH:i:sP')}
+               "isLiked" : not isinstance(guest, dict) and guest in comment.users_liked.all(),
+        "dateOfCreation" :comment.created_at}
+            
+            response["comments"].append(buff)
+            
+        return response

@@ -7,7 +7,7 @@ from apps.users.models import User
 
 class Comments(models.Model):
     id = models.CharField(max_length=50, primary_key=True)
-    text = models.CharField(max_length=200)
+    text = models.CharField(max_length=600)
     author = models.ForeignKey(User, related_name='comments', on_delete=models.CASCADE)
     answer = models.ManyToManyField("self", symmetrical=False, related_name="answers", blank=True)
     post = models.ForeignKey(Post, related_name='comments', on_delete=models.CASCADE)
@@ -36,7 +36,7 @@ class Comments(models.Model):
 
     def edit(self, text):
         # Валидация данных
-        result_validate, message_validate = Comments.__validate_data(data["text"])
+        result_validate, message_validate = Comments.__validate_data(text)
         if not result_validate:
             response = message[400].copy()
             response["message"] = message_validate
@@ -49,6 +49,6 @@ class Comments(models.Model):
 
     @staticmethod
     def __validate_data(text):
-        if len(text) < 201 and len(text) > 0: return True, "Данные корректны"
+        if len(text) < 601 and len(text) > 0: return True, "Данные корректны"
         
         else: return False, "Длина текста не действительна"
