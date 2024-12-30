@@ -1,10 +1,10 @@
 from templates.answer import answer_dict as message
 from services.authService import Authorization
-from django.http.multipartparser import MultiPartParser
 from apps.comments.models import Comments
 from apps.posts.models import Post
 from services.encriptionService import Encriptions
 from services.parserService import Separement
+import json
 
 
 def create_comments(request, postId):
@@ -16,8 +16,13 @@ def create_comments(request, postId):
     except Exception: return message[404]
 
     # Формируем информацию о посте
-    data = MultiPartParser(request.META, request, request.upload_handlers).parse()
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return message[400]
+    
     answerId = data[0].get("answerCommentId", default="None")
+    
     if answerId != "None":
         try: answerComment = Comments.objects.get(answerId)
         except Exception: 
@@ -52,7 +57,8 @@ def get_comments(request, postId):
     comments = Comments.objects.filter(post=post).order_by('-created_at')
 
     if comments.count() == 0:
-        return {"comments" : None}
+        return {"commentsAmount" : 0,
+                 "commentsList" : []}
     else:
         response = Separement.formatted_comments(comments, cookie_user, offset, limit, modelComments=Comments)
         return response
@@ -72,7 +78,11 @@ def edit_comments(request, commentId):
         return message[403]
     
     # Формируем информацию о посте
-    data = MultiPartParser(request.META, request, request.upload_handlers).parse()
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return message[400]
+    
     comment_text = data[0].get("text")
 
     try: 
