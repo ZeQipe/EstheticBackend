@@ -17,7 +17,7 @@ def create_comments(request, postId):
 
     # Формируем информацию о посте
     data = MultiPartParser(request.META, request, request.upload_handlers).parse()
-    answerId = data[0].get("answer", default="None")
+    answerId = data[0].get("answerCommentId", default="None")
     if answerId != "None":
         try: answerComment = Comments.objects.get(answerId)
         except Exception: 
@@ -33,7 +33,9 @@ def create_comments(request, postId):
                  "answer" : answerComment,
                    "post" : post}
     
-    try: return Comments.create(comments_data)
+    try: 
+        result = Comments.create(comments_data)
+        return {"postId" : result.post.id}
     except Exception: return message[500]
 
 
@@ -73,7 +75,10 @@ def edit_comments(request, commentId):
     data = MultiPartParser(request.META, request, request.upload_handlers).parse()
     comment_text = data[0].get("text")
 
-    try: return comment.edit(comment_text)
+    try: 
+        result = comment.edit(comment_text)
+        return  {"postId" : result.post.id}
+    
     except Exception: return message[500]
 
 

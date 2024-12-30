@@ -208,8 +208,9 @@ class Separement:
 
     @staticmethod
     def formatted_comments(data, guest, modelComments, offset=0, limit=20):
-        response = {"count" : data.count(),
-                 "comments" : []}
+        response = {"commentsAmount" : data.count(),
+                 "commentsList" : []}
+        
         for comment in data[offset, offset+limit]:
             answers = comment.answer
             if answers != "None":
@@ -217,18 +218,19 @@ class Separement:
                               "userId" : answers.author.id,
                            "firstName" : answers.author.first_name,
                             "lastname" : comment.author.first_name}
+            else: answer_info = None
 
-            buff = {"id" : comment.id,
+            buff = {"commentId" : comment.id,
                   "text" : comment.text,
-                "author" : {"id" : comment.author.id,
+                "author" : {"authorId" : comment.author.id,
                      "firstName" : comment.author.first_name,
                       "lastName" : comment.author.last_name,
                       "userName" : comment.author.user_name,
                         "avatar" : Media.get_full_url(comment.author.avatar) if comment.author.avatar else None,
-                    "avatarBlur" : Media.get_full_url(comment.author.avatar_blur) if comment.author.avatar_blur else None},
-               "isOwner" : not isinstance(guest, dict) and guest.id == comment.author.id,
-                "answer" : answer_info,
-            "likesCount" : comment.users_liked.count(),
+                    "avatarBlur" : Media.get_full_url(comment.author.avatar_blur) if comment.author.avatar_blur else None,
+                       "isOwner" : not isinstance(guest, dict) and guest.id == comment.author.id},
+                "answerInfo" : answer_info,
+            "likeCount" : comment.users_liked.count(),
                "isLiked" : not isinstance(guest, dict) and guest in comment.users_liked.all(),
         "dateOfCreation" :comment.created_at}
             

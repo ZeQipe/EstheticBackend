@@ -26,7 +26,7 @@ def comments(request, ID):
 @csrf_exempt
 def toggle_like(request, commentID):
     # Лайк комментария
-    if request.method == "POST": response = change_like(request, commentID)
+    if request.method == "PUT": response = change_like(request, commentID)
 
     else: response = message[405]
     return JsonResponse(response, status=response.get("status", 200))

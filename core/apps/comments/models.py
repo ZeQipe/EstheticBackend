@@ -44,7 +44,7 @@ class Comments(models.Model):
         
         self.text = text
         self.save()
-        return message[200]
+        return self
 
 
     @staticmethod

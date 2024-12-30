@@ -2,6 +2,7 @@ from .authService import Authorization
 from templates.answer import answer_dict as message
 from apps.dashboards.models import Board
 from apps.users.models import User
+from apps.comments.models import Comments
 
 
 class DeletterObject:
@@ -19,6 +20,11 @@ class DeletterObject:
             if cookie_user.id != target.author.id: return message[403]
 
             if model == Board and target.name == "Избранное": return message[403]
+
+            if model == Comments:
+                id = target.post.id
+                target.delete()
+                return {"postId" : id}
 
             target.delete()
 
