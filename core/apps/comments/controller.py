@@ -52,7 +52,8 @@ def get_comments(request, postId):
     comments = Comments.objects.filter(post=post).order_by('-created_at')
 
     if comments.count() == 0:
-        return {"comments" : None}
+        return {"commentsAmount" : 0,
+                 "commentsList" : []}
     else:
         response = Separement.formatted_comments(comments, cookie_user, offset, limit, modelComments=Comments)
         return response
