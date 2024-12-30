@@ -21,7 +21,7 @@ def create_comments(request, postId):
     except json.JSONDecodeError:
         return message[400]
     
-    answerId = data[0].get("answerCommentId", default="None")
+    answerId = data.get("answerCommentId", default="None")
     
     if answerId != "None":
         try: answerComment = Comments.objects.get(answerId)
@@ -83,7 +83,7 @@ def edit_comments(request, commentId):
     except json.JSONDecodeError:
         return message[400]
     
-    comment_text = data[0].get("text")
+    comment_text = data.get("text")
 
     try: 
         result = comment.edit(comment_text)
