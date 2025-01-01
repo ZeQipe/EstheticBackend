@@ -9,7 +9,10 @@ class Comments(models.Model):
     id = models.CharField(max_length=50, primary_key=True)
     text = models.CharField(max_length=600)
     author = models.ForeignKey(User, related_name='comments', on_delete=models.CASCADE)
-    answer = models.ManyToManyField("self", symmetrical=False, related_name="answers", blank=True)
+    answerCommentId = models.CharField(max_length=50, null=True, default=None)
+    answerUserLastName = models.CharField(max_length=100, null=True, default=None)
+    answerUserFirstName = models.CharField(max_length=100, null=True, default=None)
+    answerUserId = models.CharField(max_length=100, null=True, default=None)
     post = models.ForeignKey(Post, related_name='comments', on_delete=models.CASCADE)
     users_liked = models.ManyToManyField(User, related_name='liked_comments', blank=True)
     created_at = models.DateTimeField(default=timezone.now)
@@ -25,13 +28,17 @@ class Comments(models.Model):
             return response
 
         # Создание поста
-        post = Post.objects.create(id=data["id"],
-                                   text=data["text"],
-                                   author=data["author"],
-                                   answer=data["answer"],
-                                   post=data["post"])
+        comment = Comments.objects.create(id=data["id"],
+                                        text=data["text"],
+                                      author=data["author"],
+                             answerCommentId=data["answer"].get("id"),
+                          answerUserLastName=data["answer"].get("firstName"),
+                         answerUserFirstName=data["answer"].get("lastName"),
+                                answerUserId=data["answer"].get("userId"),
+                                        post=data["post"])
 
-        return {"postId": post.id}
+
+        return {"postId": comment.post.id}
     
 
     def edit(self, text):

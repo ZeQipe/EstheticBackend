@@ -207,17 +207,17 @@ class Separement:
 
 
     @staticmethod
-    def formatted_comments(data, guest, modelComments, offset=0, limit=20):
+    def formatted_comments(data, guest, offset=0, limit=20):
         response = {"commentsAmount" : data.count(),
                  "commentsList" : []}
         
-        for comment in data[offset, offset+limit]:
-            answers = comment.answer
-            if answers != "None":
-                answer_info = {"commentId" : answers.id,
-                              "userId" : answers.author.id,
-                           "firstName" : answers.author.first_name,
-                            "lastname" : comment.author.first_name}
+        for comment in data.all()[offset:offset+limit]:
+            answers = comment.answerCommentId
+            if answers != None:
+                answer_info = {"commentId" : comment.answerCommentId,
+                                  "userId" : comment.answerUserId,
+                               "firstName" : comment.answerUserFirstName,
+                                "lastname" : comment.answerUserLastName}
             else: answer_info = None
 
             buff = {"commentId" : comment.id,
@@ -234,6 +234,6 @@ class Separement:
                "isLiked" : not isinstance(guest, dict) and guest in comment.users_liked.all(),
         "dateOfCreation" :comment.created_at}
             
-            response["comments"].append(buff)
+            response["commentsList"].append(buff)
             
         return response

@@ -21,27 +21,31 @@ def create_comments(request, postId):
     except json.JSONDecodeError:
         return message[400]
     
-    answerId = data.get("answerCommentId", default="None")
+    answerId = data.get("answerCommentId")
     
-    if answerId != "None":
-        try: answerComment = Comments.objects.get(answerId)
+    if answerId:
+        try: answer = Comments.objects.get(id=answerId)
         except Exception: 
             response = message[404]
             response["error"] = "Комментарий, на который Вы пытались ответить, не найден."
             return response
         
-    else: answerComment = "None"
+        answerComment = {"id" : answer.id,
+                         "firstName": answer.author.first_name,
+                         "lastName": answer.author.last_name,
+                         "userId" : answer.author.id}
+        
+    else: answerComment = {}
 
     comments_data = {"id" : Encriptions.generate_string(50, Comments),
-                   "text" : data[0].get("text"),
+                   "text" : data.get("text"),
                  "author" : cookie_user,
                  "answer" : answerComment,
                    "post" : post}
     
-    try: 
-        result = Comments.create(comments_data)
-        return {"postId" : result.post.id}
-    except Exception: return message[500]
+    result = Comments.create(comments_data)
+    return result
+
 
 
 def get_comments(request, postId):
@@ -60,7 +64,7 @@ def get_comments(request, postId):
         return {"commentsAmount" : 0,
                  "commentsList" : []}
     else:
-        response = Separement.formatted_comments(comments, cookie_user, offset, limit, modelComments=Comments)
+        response = Separement.formatted_comments(comments, cookie_user, offset, limit)
         return response
 
 
