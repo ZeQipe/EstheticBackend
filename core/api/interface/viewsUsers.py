@@ -28,8 +28,8 @@ def usersLogin(request):
     # Авторизация пользователя
     if request.method == "POST":
         response = Authorization.login(request)
-
-        if response.get("userId", False):
+        
+        if response.get("userId", False): # Установка кук, в случае, если авторизация прошла успешно
             cook_keys = Encriptions.encrypt_string(response.get("userId"))
             response = JsonResponse(response, status=200)
             response = Authorization.set_key_in_coockies(response, cook_keys)
@@ -55,7 +55,7 @@ def usersLogout(request):
             response = JsonResponse(message[401], status=401)
 
         else:
-            response = JsonResponse(message[200], status=200)
+            response = JsonResponse(message[200], status=200) # Удаление кук, если пользователь авторизован
             response.set_cookie(key='auth_key',
                                 value="cookie_key",
                                 httponly=True,
@@ -86,7 +86,7 @@ def privateProfile(request):
 
 @csrf_exempt
 def publicProfile(request, userID):
-    # Вернуть профиль по ID
+    # Вернуть профиль по ID пользователя
     if request.method == "GET": response = user_profile(request, userID)                             
 
     else: 

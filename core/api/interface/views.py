@@ -36,22 +36,16 @@ def serve_webp_content(request, file_path):
 # Метод для администратора
 @csrf_exempt
 def admin(request):
-    if request.method == "GET":
-        try:
-            from services.generate2 import start 
-            response = start(request)
-            print("Успешно!")
+    try:
+        # импорт необходимого файла и запуск процессе генерации
+        from services.generate2 import start 
+        
+        response = start(request)
 
-        except Exception as er:
-            response = message[400].copy()
-            response["error"] = f"{er}"
-            LogException.write_data(er, "40-43", "Generate testing data", "Ошибка при создании данных", "admin", "info", response,
-                                    "admins/generate-test-data", "GET", "400")
-
-
-    else:
-        response = message[405]
-        LogException.write_data("Не существующий метод", "52", "Generate testing data", "Не верный метод", "admin", "info", request,
-                                "admins/generate-test-data", f"запрос с методом - {request.method}", "405")
+    except Exception as er:
+        response = message[400].copy()
+        response["error"] = f"{er}"
+        LogException.write_data(er, "39", "Generate testing data", "Ошибка при создании данных", "admin", "info", response,
+                                "admins/generate-test-data", "GET", "400")
 
     return JsonResponse(response, status=response.get("status", 200))
