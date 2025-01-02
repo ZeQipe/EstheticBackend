@@ -5,6 +5,7 @@ from django.views.decorators.http import require_http_methods
 from apps.users.controller import *
 from services.authService import Authorization
 from services.delService import DeletterObject as deletter
+from services.logService import LogException
 
 
 @csrf_exempt
@@ -13,7 +14,11 @@ def usersRegistration(request):
     # Создание нового пользователя
     if request.method == "POST": response = registration_users(request)
 
-    else: response = message[405]
+    else: 
+        response = message[405]
+        LogException.write_data("Не существующий метод", "17", "Создание нового пользователя", "Не верный метод", "usersRegistration", "info", request,
+                                "users/registration", f"запрос с методом - {request.method}", "405")
+        
     return JsonResponse(response, status=response.get("status", 200))
 
 
@@ -32,7 +37,10 @@ def usersLogin(request):
         else:
             response = JsonResponse(response, status=response.get("status"))
 
-    else: response = JsonResponse(message[405], status=405)
+    else: 
+        response = JsonResponse(message[405], status=405)
+        LogException.write_data("Не существующий метод", "40", "Авторизация пользователя", "Не верный метод", "usersLogin", "info", request,
+                                "users/login", f"запрос с методом - {request.method}", "405")
 
     return response
 
@@ -55,7 +63,10 @@ def usersLogout(request):
                                 samesite='None',
                                 max_age=1)
 
-    else: response = JsonResponse(message[405], status=405)
+    else: 
+        response = JsonResponse(message[405], status=405)
+        LogException.write_data("Не существующий метод", "66", "Выход из аккаунта", "Не верный метод", "usersLogout", "info", request,
+                                "users/logout", f"запрос с методом - {request.method}", "405")
 
     return response
 
@@ -65,7 +76,11 @@ def privateProfile(request):
     # Вернуть профиль по кукам
     if request.method == "GET": response = user_profile(request)
 
-    else: response = message[405]
+    else: 
+        response = message[405]
+        LogException.write_data("Не существующий метод", "79", "Вернуть профиль по кукам", "Не верный метод", "privateProfile", "info", request,
+                                "users/private-profile", f"запрос с методом - {request.method}", "405")
+        
     return JsonResponse(response, status=response.get("status", 200))
 
 
@@ -74,7 +89,11 @@ def publicProfile(request, userID):
     # Вернуть профиль по ID
     if request.method == "GET": response = user_profile(request, userID)                             
 
-    else: response = message[405]
+    else: 
+        response = message[405]
+        LogException.write_data("Не существующий метод", "92", "Вернуть профиль по ID", "Не верный метод", "publicProfile", "info", request,
+                                "users/public-profile/<str:userID>", f"запрос с методом - {request.method}", "405")
+
     return JsonResponse(response, status=response.get("status", 200))
 
 
@@ -86,7 +105,11 @@ def users(request):
     # Изменить данные о пользователе
     elif request.method == "PUT": response = edit_user_data(request)
 
-    else: response = message[405]
+    else: 
+        response = message[405]
+        LogException.write_data("Не существующий метод", "108", "Удалить пользователя | Изменить данные о пользователе", "Не верный метод", "publicProfile", "info", request,
+                                "users/", f"запрос с методом - {request.method}", "405")
+        
     return JsonResponse(response, status=response.get("status", 200))
 
 
@@ -95,7 +118,11 @@ def usersCreatedPosts(request, userID):
     # Вернуть список постов пользователя
     if request.method == "GET": response = user_created_post_list(request, userID)
 
-    else: response = message[405]
+    else: 
+        response = message[405]
+        LogException.write_data("Не существующий метод", "121", "Вернуть список постов пользователя", "Не верный метод", "usersCreatedPosts", "info", 
+                                request, "users/<str:userID>/created-posts", f"запрос с методом - {request.method}", "405")
+        
     return JsonResponse(response, status=response.get("status", 200))
 
 
@@ -105,7 +132,11 @@ def check_auth(request):
     try:
         if request.method == "GET": response = {"isAuth": not isinstance(Authorization.is_authorization(request), dict)}
 
-        else: response = message[405]
+        else: 
+            response = message[405]
+            LogException.write_data("Не существующий метод", "135", "Проверка авторизации пользователя", "Не верный метод", "check_auth", "info", 
+                                    request, "auth/check", f"запрос с методом - {request.method}", "405")
+        
         return JsonResponse(response, status=response.get("status", 200))
         
     except Exception: return  JsonResponse({"isAuth": False}, status=200)

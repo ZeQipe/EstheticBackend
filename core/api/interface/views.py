@@ -51,7 +51,7 @@ def admin(request):
 
     else:
         response = message[405]
-        LogException.write_data("Не существующий метод", "52", "Generate testing data", "Не верный метод", "admin", "info", response,
+        LogException.write_data("Не существующий метод", "52", "Generate testing data", "Не верный метод", "admin", "info", request,
                                 "admins/generate-test-data", f"запрос с методом - {request.method}", "405")
 
     return JsonResponse(response, status=response.get("status", 200))

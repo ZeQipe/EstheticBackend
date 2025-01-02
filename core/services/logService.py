@@ -29,9 +29,9 @@ class LogException:
         current_datetime = str(datetime.datetime.now().date()).replace("-", ".") + " -- " + str(datetime.datetime.now().time())
         formatWrite = f"""
 {current_datetime} <> {classError} : {errorText}
-{rout} <> {method} <> {app}
-{nameFunc} <> {line}
-{type} <> {code}
+rout: {rout} <> method: {method} <> app: {app}
+nameFunc: {nameFunc} <> line: {line}
+type: {type} <> code: {code}
 Information : {data}
 
 {'--|' * 10}
