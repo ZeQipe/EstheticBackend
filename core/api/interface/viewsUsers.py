@@ -16,7 +16,7 @@ def usersRegistration(request):
 
     else: 
         response = message[405]
-        LogException.write_data("Не существующий метод", "17", "Создание нового пользователя", "Не верный метод", "usersRegistration", "info", request,
+        LogException.write_data("Не существующий метод", "17", "viewsUsers", "Не верный метод", "usersRegistration", "info", request,
                                 "users/registration", f"запрос с методом - {request.method}", "405")
         
     return JsonResponse(response, status=response.get("status", 200))
@@ -39,7 +39,7 @@ def usersLogin(request):
 
     else: 
         response = JsonResponse(message[405], status=405)
-        LogException.write_data("Не существующий метод", "40", "Авторизация пользователя", "Не верный метод", "usersLogin", "info", request,
+        LogException.write_data("Не существующий метод", "40", "viewsUsers", "Не верный метод", "usersLogin", "info", request,
                                 "users/login", f"запрос с методом - {request.method}", "405")
 
     return response
@@ -65,7 +65,7 @@ def usersLogout(request):
 
     else: 
         response = JsonResponse(message[405], status=405)
-        LogException.write_data("Не существующий метод", "66", "Выход из аккаунта", "Не верный метод", "usersLogout", "info", request,
+        LogException.write_data("Не существующий метод", "66", "viewsUsers", "Не верный метод", "usersLogout", "info", request,
                                 "users/logout", f"запрос с методом - {request.method}", "405")
 
     return response
@@ -78,7 +78,7 @@ def privateProfile(request):
 
     else: 
         response = message[405]
-        LogException.write_data("Не существующий метод", "79", "Вернуть профиль по кукам", "Не верный метод", "privateProfile", "info", request,
+        LogException.write_data("Не существующий метод", "79", "viewsUsers", "Не верный метод", "privateProfile", "info", request,
                                 "users/private-profile", f"запрос с методом - {request.method}", "405")
         
     return JsonResponse(response, status=response.get("status", 200))
@@ -91,7 +91,7 @@ def publicProfile(request, userID):
 
     else: 
         response = message[405]
-        LogException.write_data("Не существующий метод", "92", "Вернуть профиль по ID", "Не верный метод", "publicProfile", "info", request,
+        LogException.write_data("Не существующий метод", "92", "viewsUsers", "Не верный метод", "publicProfile", "info", request,
                                 "users/public-profile/<str:userID>", f"запрос с методом - {request.method}", "405")
 
     return JsonResponse(response, status=response.get("status", 200))
@@ -107,7 +107,7 @@ def users(request):
 
     else: 
         response = message[405]
-        LogException.write_data("Не существующий метод", "108", "Удалить пользователя | Изменить данные о пользователе", "Не верный метод", "publicProfile", "info", request,
+        LogException.write_data("Не существующий метод", "108", "viewsUsers", "Не верный метод", "publicProfile", "info", request,
                                 "users/", f"запрос с методом - {request.method}", "405")
         
     return JsonResponse(response, status=response.get("status", 200))
@@ -120,7 +120,7 @@ def usersCreatedPosts(request, userID):
 
     else: 
         response = message[405]
-        LogException.write_data("Не существующий метод", "121", "Вернуть список постов пользователя", "Не верный метод", "usersCreatedPosts", "info", 
+        LogException.write_data("Не существующий метод", "121", "viewsUsers", "Не верный метод", "usersCreatedPosts", "info", 
                                 request, "users/<str:userID>/created-posts", f"запрос с методом - {request.method}", "405")
         
     return JsonResponse(response, status=response.get("status", 200))
@@ -134,7 +134,7 @@ def check_auth(request):
 
         else: 
             response = message[405]
-            LogException.write_data("Не существующий метод", "135", "Проверка авторизации пользователя", "Не верный метод", "check_auth", "info", 
+            LogException.write_data("Не существующий метод", "135", "viewsUsers", "Не верный метод", "check_auth", "info", 
                                     request, "auth/check", f"запрос с методом - {request.method}", "405")
         
         return JsonResponse(response, status=response.get("status", 200))

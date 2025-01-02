@@ -4,6 +4,7 @@ from services.parserService import Separement
 from services.mediaService import Media
 from django.db import models
 from django.utils import timezone
+from services.logService import LogException
 import re
 
 
@@ -29,10 +30,19 @@ class User(models.Model):
         if not result_validate:
             response = message[400].copy()
             response["message"] = message_validate
+            LogException.write_data(message_validate, "29", "users -- model", "Не пройдена валидация", "create_user", "info", 
+                                    data, "users/registration", "POST", "400")
             return response
 
         # Сохранение медиа файла
-        url, url_blur = Media.save_media(data["media"], data["id"], "avatars")
+        try:
+            url, url_blur = Media.save_media(data["media"], data["id"], "avatars")
+
+        except Exception as er:
+            LogException.write_data(message_validate, "55", "users -- model", "Не сохранено изображение", "change_user", "warning", 
+                                    data, "users/registration", "POST", "500")
+            return message[500]
+            
 
         # Создание пользователя
         user = User.objects.create(id=data["id"],
@@ -55,6 +65,8 @@ class User(models.Model):
         if not result_validate:
             response = message[400].copy()
             response["message"] = message_validate
+            LogException.write_data(message_validate, "65", "users -- model", "Не пройдена валидация", "change_user", "info", 
+                                    data, "users/", "PUT", "400")
             return response
 
         # Установка новых данных
@@ -68,7 +80,11 @@ class User(models.Model):
 
         # Проверка и установка нового изображения
         try: url, url_blur = Media.save_media(data["media"], user.id, "avatars")
-        except: url = False
+        except: 
+            LogException.write_data(message_validate, "82", "users -- model", "Не пройдена валидация", "change_user", "info", 
+                                    data, "users/", "PUT", "500")
+            return message[500]
+
         if url: user.avatar = url
         if url_blur: user.avatar_blur = url_blur
 
