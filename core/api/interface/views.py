@@ -4,6 +4,7 @@ from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from templates.answer import answer_dict as message
 from django.http import JsonResponse
+from services.logService import LogException
 
 
 def serve_webp_avatars(request, file_path):
@@ -44,8 +45,13 @@ def admin(request):
         except Exception as er:
             response = message[400].copy()
             response["error"] = f"{er}"
+            LogException.write_data(er, "40-43", "Generate testing data", "Ошибка при создании данных", "admin", "info", response,
+                                    "admins/generate-test-data", "GET", "400")
+
 
     else:
         response = message[405]
+        LogException.write_data("Не существующий метод", "52", "Generate testing data", "Не верный метод", "admin", "info", response,
+                                "admins/generate-test-data", f"запрос с методом - {request.method}", "405")
 
     return JsonResponse(response, status=response.get("status", 200))
