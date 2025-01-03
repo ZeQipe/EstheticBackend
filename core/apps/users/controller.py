@@ -20,20 +20,26 @@ def registration_users(request) -> dict:
           'tags_list' : request_data[0].get("tags")}
 
     # Отправляем в базу данных запрос
-    try: user = User.create_user(user_data)
+    try: 
+        user = User.create_user(user_data)
+
     except Exception as er: 
-        LogException.write_data(er, "23", "Создание пользователя", "Ошибка при записи в базу данных", "registration_users", "warning", user_data,
-                                "users/registration", "POST", "500")
+        LogException.write_data(er, "23", "user -- controller", "Ошибка при обращении к модели", 
+                "registration_users", "warning", user_data, "users/registration", "POST", "500")
+        
         return message[500]
 
     # Формирование ответа
     try: 
-        if isinstance(user, User): response = Separement.user_information(user, status="owner")
-        else: response = user
+        if isinstance(user, User): 
+            response = Separement.user_information(user, status="owner")
+        
+        else: 
+            response = user
     
     except Exception as er:
-            LogException.write_data(er, "30", "Создание пользователя", "Ошибка при формировании ответа", "registration_users", "warning", f"user: {user_data} -- type: {type(user)}",
-                    "users/registration", "POST", "500")
+            LogException.write_data(er, "33", "user -- controller", "Ошибка при формировании ответа", "registration_users", 
+                                "warning", f"user: {user_data} -- type: {type(user)}", "users/registration", "POST", "500")
             
             response = message[500]
     
@@ -46,11 +52,13 @@ def user_profile(request, id_profile="") -> dict:
 
     # Два варианта возврата данных
     if id_profile:
+
         # Поиск пользователя по ID
-        try: user_profile = User.objects.get(id=id_profile)
+        try: 
+            user_profile = User.objects.get(id=id_profile)
         
         except Exception as er: 
-            LogException.write_data(er, "50", "Поиск пользователя в базе данных", "Ошибка при поиске пользователя по ID", "user_profile", "warning",
+            LogException.write_data(er, "57", "user -- controller", "Ошибка при обращении к базе данных", "user_profile", "warning",
                                     f"id_profile: {id_profile}", "users/public-profile/<str:userID>" , "GET", "404")
             
             return message[404]
@@ -58,8 +66,9 @@ def user_profile(request, id_profile="") -> dict:
         # Формирование ответа
         try:
             response = Separement.user_information(user_profile, cookie_user=cookie_user)
+
         except Exception as er:
-            LogException.write_data(er, "59", "Поиск пользователя в базе данных", "Ошибка при формировании ответа", "user_profile", "warning", 
+            LogException.write_data(er, "67", "user -- controller", "Ошибка при формировании ответа", "user_profile", "warning", 
                                     f"user_profile_type: {type(user_profile)}", "users/public-profile/<str:userID>", "GET", "500")
         
             return message[500]
@@ -67,7 +76,7 @@ def user_profile(request, id_profile="") -> dict:
     else:
         # Поиск пользователя по кукам
         if isinstance(cookie_user, dict): 
-            LogException.write_data(er, "69", "Поиск пользователя в базе данных", "Ошибка при поиске пользователя по кукам", "user_profile", "info", 
+            LogException.write_data(er, "78", "user -- controller", "Ошибка авторизации", "user_profile", "info", 
                                     f"user_profile: {type(cookie_user)}",  "users/private-profile", "GET", "404")
             
             return message[404]
@@ -77,7 +86,7 @@ def user_profile(request, id_profile="") -> dict:
             response = Separement.user_information(cookie_user, status="owner")
 
         except Exception as er:
-            LogException.write_data(er, "76", "Поиск пользователя в базе данных", "Ошибка при формировании ответа", "user_profile", "warning", 
+            LogException.write_data(er, "85", "user -- controller", "Ошибка при формировании ответа", "user_profile", "warning", 
                                     f"user_profile: {type(cookie_user)} -- {cookie_user}", "users/private-profile", "GET", "500")
 
             response = message[500]
@@ -89,7 +98,7 @@ def edit_user_data(request):
     # Проверка на авторизацию пользователя
     cookie_user = Authorization.is_authorization(request)
     if isinstance(cookie_user, dict): 
-        LogException.write_data("Попытка изменить данные не своего аккаунта", "91", "Редактирование данных", "Ошибка при проверке на авторизацию", 
+        LogException.write_data("Попытка изменить данные не своего аккаунта", "100", "user -- controller", "Ошибка авторизации", 
                                 "edit_user_data", "info", f"user_profile_type: {type(cookie_user)} -- {cookie_user}", "users/", "PUT", "401")
         
         return message[401]
@@ -103,9 +112,11 @@ def edit_user_data(request):
                       'media' : put_data[1].get("avatar")}
 
     # Отправляем в базу данных запрос
-    try: return User.change_user(cookie_user, user_data)
+    try: 
+        return User.change_user(cookie_user, user_data)
+    
     except Exception as er: 
-        LogException.write_data(er, "106", "Редактирование данных", "Ошибка при запросе в базу данных", "edit_user_data", "warning", 
+        LogException.write_data(er, "115", "user -- controller", "Ошибка при обращении к модели", "edit_user_data", "warning", 
                                 f"user_profile_type: {type(cookie_user)} -- {user_data}", "users/", "PUT", "500")
         
         return message[500]
@@ -116,13 +127,14 @@ def user_created_post_list(request, userID):
     offset, limit = Separement.pagination_parametrs(request)
 
     # Поиск пользователя в базе данных
-    try: user = User.objects.get(id=userID)
+    try: 
+        user = User.objects.get(id=userID)
+
     except Exception as er:
         response = message[404].copy()
         response['message'] = "Not found User"
-        LogException.write_data(er, "119", "Вернуть список постов пользователя", "Ошибка при поиске пользователя", "user_created_post_list", "info", 
+        LogException.write_data(er, "130", "user -- controller", "Ошибка при обращении к базе данных", "user_created_post_list", "warning", 
                                 f"user_profile_type: {type(user)}", "users/<str:userID>/created-posts", "GET", "404")
-
 
         return response
 
@@ -135,7 +147,7 @@ def user_created_post_list(request, userID):
         response = Separement.formatted_posts(posts_user, count)
     
     except Exception as er:
-        LogException.write_data(er, "134", "Вернуть список постов пользователя", "Ошибка при формировании ответа", "user_created_post_list", "warning", 
+        LogException.write_data(er, "146", "user -- controller", "Ошибка при формировании ответа", "user_created_post_list", "warning", 
                                 f"posts_user: {posts_user} -- count: {count}", "users/<str:userID>/created-posts", "GET", "500")
         
         return message[500]

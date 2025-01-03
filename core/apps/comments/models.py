@@ -20,18 +20,23 @@ class Comments(models.Model):
 
 
     @staticmethod
-    def create(data):
+    def create(data: dict) -> dict:
+        """
+        Создает запись в базе данных
+        :data: dict - словарь 
+        :return: dict
+        """
         # Валидация данных
         result_validate, message_validate = Comments.__validate_data(data["text"])
         if not result_validate:
             response = message[400].copy()
             response["message"] = message_validate
-            LogException.write_data("Ошибка валидации данных", "26", "model -- comments", "Ошибка при валидации", "create", "info", 
-                                f"data: {data}", "comments/<str:ID>", "POST", "400")
+            LogException.write_data("Ошибка валидации данных", "26", "comments -- model", "Ошибка валидации", 
+                                    "create", "info", f"data: {data}", "comments/<str:ID>", "POST", "400")
             
             return response
 
-        # Создание поста
+        # Создание комментария
         comment = Comments.objects.create(id=data["id"],
                                         text=data["text"],
                                     author=data["author"],
@@ -44,23 +49,34 @@ class Comments(models.Model):
         return {"postId": comment.post.id}
     
 
-    def edit(self, text):
+    def edit(self: object, text: str) -> object:
+        """
+        Редактирование комментария
+        :self: object
+        :text: str
+        :return: object
+        """
         # Валидация данных
         result_validate, message_validate = Comments.__validate_data(text)
         if not result_validate:
             response = message[400].copy()
             response["message"] = message_validate
-            LogException.write_data("Ошибка валидации данных", "50", "model -- comments", "Ошибка при валидации", "edit", "info", 
-                                f"text: {text}", "comments/<str:ID>", "PUT", "400")
+            LogException.write_data("Ошибка валидации данных", "50", "comments -- model", "Ошибка валидации", 
+                            "edit", "info", f"text: {message_validate}", "comments/<str:ID>", "PUT", "400")
+            
             return response
         
+        # Сохранение новых данных
         self.text = text
         self.save()
+
         return self
 
 
     @staticmethod
     def __validate_data(text):
-        if len(text) < 601 and len(text) > 0: return True, "Данные корректны"
+        if len(text) < 601 and len(text) > 0: 
+            return True, "Данные корректны"
         
-        else: return False, "Длина текста не действительна"
+        else: 
+            return False, "Длина текста не действительна"

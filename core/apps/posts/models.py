@@ -5,6 +5,7 @@ from django.utils import timezone
 from services.parserService import Separement
 from services.mediaService import Media
 from django.db.models import Q
+from services.logService import LogException
 import re
 
 
@@ -24,12 +25,20 @@ class Post(models.Model):
 
 
     @staticmethod
-    def create_post(data):
+    def create_post(data: dict) -> dict:
+        """
+        Создание записи о посте в базе данных
+        :data: словарь с информацией о посте
+        :return: словарь с ID поста или ошибкой
+        """
         # Валидация данных
         result_validate, message_validate = Post.__validate_data(data, "create")
         if not result_validate:
             response = message[400].copy()
             response["message"] = message_validate
+            LogException.write_data("Ошибка валидации данных", "31", "posts -- model", "Ошибка валидации", 
+                            "create_post", "info", f"text: {message_validate}", "posts/", "POST", "400")
+            
             return response
  
         # Сохранение медиа файла
@@ -53,12 +62,21 @@ class Post(models.Model):
 
 
     @staticmethod
-    def change_data_post(post, data):
+    def change_data_post(post: object, data: dict) -> dict:
+        """
+        Редактирование данных поста
+        :post: Объект базы данных, в который необходимо вносить изменения
+        :data: словарь с данными, которые необходимо изменить
+        :return: Возвращает словарь с информацией о результате редактирования
+        """
         # Валидация данных
         result_validate, message_validate = Post.__validate_data(data, "edit")
         if not result_validate:
             response = message[400].copy()
             response["message"] = message_validate
+            LogException.write_data("Ошибка валидации данных", "63", "posts -- model", "Ошибка валидации", 
+                "change_data_post", "info", f"text: {message_validate}", "posts/<str:postID>", "POST", "400")
+            
             return response
 
         # Установка новых данных
@@ -69,7 +87,8 @@ class Post(models.Model):
 
         # Подготовка и установка новых тэгов
         tags = Separement.unpacking_tags(data["tags_list"])
-        if tags: post.tags_list = tags
+        if tags: 
+            post.tags_list = tags
 
         # Сохранение результата
         post.save()
@@ -145,6 +164,7 @@ class Post(models.Model):
         # Пропуск постов по offset для частичных совпадений
         if partial_post_count >= offset:
             result_posts.extend(list(partial_posts[offset:offset+limit-len(result_posts)]))
+            
         else:
             # Если частичных постов тоже недостаточно, берем все оставшиеся
             result_posts.extend(list(partial_posts[offset:]))
@@ -179,6 +199,11 @@ class Post(models.Model):
 
     @staticmethod
     def __validate_data(post_data: dict, mode: str) -> tuple:
+        """
+        Валидация данных для создания поста
+        :post_data: словарь, содержащий данные для валидации ('postName', 'description', 'aspectRatio', 'link')
+        
+        """
         # Поля, которые необходимо валидировать
         fields_to_validate = ['postName', 'description', 'aspectRatio', 'link']
 

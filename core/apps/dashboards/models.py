@@ -39,7 +39,7 @@ class Board(models.Model):
 
 
     @staticmethod
-    def check_board_name(user, name) -> bool:
+    def check_board_name(user, name: str) -> bool:
         """
         Функция проверяет, существует ли доска с указанным именем среди досок пользователя.
 

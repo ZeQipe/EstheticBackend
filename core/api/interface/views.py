@@ -45,7 +45,7 @@ def admin(request):
     except Exception as er:
         response = message[400].copy()
         response["error"] = f"{er}"
-        LogException.write_data(er, "39", "Generate testing data", "Ошибка при создании данных", "admin", "info", response,
+        LogException.write_data(er, "39", "Generate testing data", "Уникальные ошибки", "admin", "info", response,
                                 "admins/generate-test-data", "GET", "400")
 
     return JsonResponse(response, status=response.get("status", 200))

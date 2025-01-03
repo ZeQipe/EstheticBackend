@@ -24,25 +24,24 @@ class User(models.Model):
 
 
     @staticmethod
-    def create_user(data):
+    def create_user(data: dict) -> dict:
+        """
+        Создание записи о пользователе
+        :data: словарь с данными о пользователе
+        :return: словарь с ID пользователя или с ошибкой
+        """
         # Валидация входных данных на создание пользователя
         result_validate, message_validate = User.__validate_data(data, "create")
         if not result_validate:
             response = message[400].copy()
             response["message"] = message_validate
-            LogException.write_data(message_validate, "29", "users -- model", "Не пройдена валидация", "create_user", "info", 
+            LogException.write_data(message_validate, "35", "users -- model", "Не пройдена валидация", "create_user", "info", 
                                     data, "users/registration", "POST", "400")
+            
             return response
 
         # Сохранение медиа файла
-        try:
-            url, url_blur = Media.save_media(data["media"], data["id"], "avatars")
-
-        except Exception as er:
-            LogException.write_data(message_validate, "55", "users -- model", "Не сохранено изображение", "change_user", "warning", 
-                                    data, "users/registration", "POST", "500")
-            return message[500]
-            
+        url, url_blur = Media.save_media(data["media"], data["id"], "avatars")   
 
         # Создание пользователя
         user = User.objects.create(id=data["id"],
@@ -65,8 +64,9 @@ class User(models.Model):
         if not result_validate:
             response = message[400].copy()
             response["message"] = message_validate
-            LogException.write_data(message_validate, "65", "users -- model", "Не пройдена валидация", "change_user", "info", 
+            LogException.write_data(message_validate, "64", "users -- model", "Не пройдена валидация", "change_user", "info", 
                                     data, "users/", "PUT", "400")
+            
             return response
 
         # Установка новых данных
@@ -79,17 +79,14 @@ class User(models.Model):
         if tags: user.tags_user = tags
 
         # Проверка и установка нового изображения
-        try: url, url_blur = Media.save_media(data["media"], user.id, "avatars")
-        except: 
-            LogException.write_data(message_validate, "82", "users -- model", "Не пройдена валидация", "change_user", "info", 
-                                    data, "users/", "PUT", "500")
-            return message[500]
+        url, url_blur = Media.save_media(data["media"], user.id, "avatars")
 
         if url: user.avatar = url
         if url_blur: user.avatar_blur = url_blur
 
         # Сохранение результата
         user.save()
+        
         return message[200]
 
 
