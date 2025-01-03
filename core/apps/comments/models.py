@@ -3,6 +3,7 @@ from django.db import models
 from django.utils import timezone
 from apps.posts.models import Post
 from apps.users.models import User
+from services.logService import LogException
 
 
 class Comments(models.Model):
@@ -25,18 +26,20 @@ class Comments(models.Model):
         if not result_validate:
             response = message[400].copy()
             response["message"] = message_validate
+            LogException.write_data("Ошибка валидации данных", "26", "model -- comments", "Ошибка при валидации", "create", "info", 
+                                f"data: {data}", "comments/<str:ID>", "POST", "400")
+            
             return response
 
         # Создание поста
         comment = Comments.objects.create(id=data["id"],
                                         text=data["text"],
-                                      author=data["author"],
-                             answerCommentId=data["answer"].get("id"),
-                          answerUserLastName=data["answer"].get("firstName"),
-                         answerUserFirstName=data["answer"].get("lastName"),
+                                    author=data["author"],
+                            answerCommentId=data["answer"].get("id"),
+                        answerUserLastName=data["answer"].get("firstName"),
+                        answerUserFirstName=data["answer"].get("lastName"),
                                 answerUserId=data["answer"].get("userId"),
                                         post=data["post"])
-
 
         return {"postId": comment.post.id}
     
@@ -47,6 +50,8 @@ class Comments(models.Model):
         if not result_validate:
             response = message[400].copy()
             response["message"] = message_validate
+            LogException.write_data("Ошибка валидации данных", "50", "model -- comments", "Ошибка при валидации", "edit", "info", 
+                                f"text: {text}", "comments/<str:ID>", "PUT", "400")
             return response
         
         self.text = text
