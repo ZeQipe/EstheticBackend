@@ -137,7 +137,7 @@ class Separement:
 
         if favorites_board:
             # Получение и форматирование постов
-            all_posts = BoardPost.objects.filter(board=board).order_by('-added_at')
+            all_posts = BoardPost.objects.filter(board=favorites_board).order_by('-added_at')
 
             recent_posts = BoardPost.objects.filter(board=favorites_board).order_by('-added_at')[:5]
             response["favorites"] = {"dashboardId" : favorites_board.id,
