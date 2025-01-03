@@ -4,7 +4,7 @@ import datetime
 
 
 class LogException:
-    filePath = os.environ.get("LOCALAPPDATA") + "\\LogEstheticApp\\log.txt"
+    filePath = "log.txt"
 
     @staticmethod
     def write_data(errorText, line=None, app=None, type=None, nameFunc=None, classError=None, data=None, rout=None, method=None, code=None) -> None:
