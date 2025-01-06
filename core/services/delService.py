@@ -22,9 +22,11 @@ class DeletterObject:
             if model == Board and target.name == "Избранное": return message[403]
 
             if model == Comments:
-                id = target.post.id
+                postid = target.post.id
+                commentId = target.id
                 target.delete()
-                return {"postId" : id}
+                return {"postId" : id,
+                        "commentId": commentId}
 
             target.delete()
 
