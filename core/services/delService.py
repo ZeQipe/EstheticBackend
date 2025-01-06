@@ -25,7 +25,7 @@ class DeletterObject:
                 postid = target.post.id
                 commentId = target.id
                 target.delete()
-                return {"postId" : id,
+                return {"postId" : postid,
                         "commentId": commentId}
 
             target.delete()
