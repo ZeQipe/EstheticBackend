@@ -145,7 +145,7 @@ class Separement:
                                              "urlsBlur" : [Media.get_full_url(obj.post.url_blur) for obj in recent_posts]}
 
             if type == "full":
-                response["favorites"]["created_at"] = favorites_board.created_at
+                response["favorites"]["dateOfCreation"] = favorites_board.created_at
                 response["favorites"]["postsAmount"] = favorites_board.posts.all().count()
 
             response["dashboardsAmount"] -= 1
