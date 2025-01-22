@@ -12,8 +12,8 @@ import re
 class Post(models.Model):
     id = models.CharField(max_length=40, primary_key=True)
     author = models.ForeignKey(User, related_name='posts', on_delete=models.CASCADE)
-    post_name = models.CharField(max_length=20)
-    description = models.CharField(max_length=100, blank=True, null=True)
+    post_name = models.CharField(max_length=60)
+    description = models.CharField(max_length=600, blank=True, null=True)
     users_liked = models.ManyToManyField(User, related_name='liked_posts', blank=True)
     type_content = models.TextField()
     url = models.TextField(unique=True)
@@ -74,7 +74,7 @@ class Post(models.Model):
         if not result_validate:
             response = message[400].copy()
             response["message"] = message_validate
-            LogException.write_data("Ошибка валидации данных", "63", "posts -- model", "Ошибка валидации", 
+            LogException.write_data("Ошибка валидации данных", "74", "posts -- model", "Ошибка валидации", 
                 "change_data_post", "info", f"text: {message_validate}", "posts/<str:postID>", "POST", "400")
             
             return response
@@ -209,8 +209,8 @@ class Post(models.Model):
 
         # Регулярные выражения для полей
         regex_patterns = {
-            'postName': r'^.{2,20}$',  # Название поста от 2 до 20 символов
-            'description': r'^.{0,100}$',  # Описание до 100 символов (может быть пустым)
+            'postName': r'^.{2,60}$',  # Название поста от 2 до 60 символов
+            'description': r'^.{0,600}$',  # Описание до 600 символов (может быть пустым)
             'aspectRatio': r'^.*$',  # Любая строка
             'link': r'^.{0,100}$'  # Ссылка до 100 символов
         }

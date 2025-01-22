@@ -13,7 +13,7 @@ class User(models.Model):
     first_name = models.CharField(max_length=15)
     last_name = models.CharField(max_length=20, blank=True, null=True)
     user_name = models.CharField(max_length=20, unique=True)
-    email = models.EmailField(max_length=30, unique=True)
+    email = models.EmailField(max_length=50, unique=True)
     password = models.TextField()
     avatar = models.TextField(unique=True, blank=True, null=True)
     avatar_blur = models.TextField(unique=True, blank=True, null=True)
@@ -99,7 +99,7 @@ class User(models.Model):
         regex_patterns = {'first_name': r'^.{2,20}$',
                            'last_name': r'^.{0,20}$',
                            'user_name': r'^.{2,20}$',
-                               'email': r'^.{8,20}$',
+                               'email': r'^.{8,50}$',
                             'password': r'^.{8,20}$'}
 
         # Список обязательных полей для режима "create"

@@ -52,3 +52,14 @@ def posts_param(request, postID):
         response = message[405]
 
     return JsonResponse(response, status=response.get("status", 200))
+
+
+def get_tags(request):
+    if request.method == "GET": response = get_all_tags(request)
+
+    else: 
+        LogException.write_data("Не существующий метод", "60", "viewsPosts", "Не верный метод", "get_tags", "info", 
+                                    request, "posts/<str:postID>", f"запрос с методом - {request.method}", "405")
+        response = message[405]
+
+    return JsonResponse(response, status=response.get("status", 200))

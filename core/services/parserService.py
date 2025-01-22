@@ -42,12 +42,18 @@ class Separement:
 
 
     @staticmethod
-    def pagination_parametrs(request) -> tuple:
+    def pagination_parametrs(request, key=None) -> tuple:
         try: offset = int(request.GET.get('offset', 0))
         except ValueError: offset = 0
 
         try: limit = int(request.GET.get('limit', 20))
         except ValueError: limit = 20
+        
+        if key == "search":
+            try: search = str(request.GET.get('search', False))
+            except ValueError: search = False
+
+            return offset, limit, search
 
         return offset, limit
 

@@ -11,5 +11,8 @@ urlpatterns = [
 
         # comments
         path("comments/<str:ID>", viewsComments.comments, name="comments"), # Создание, получение, удаление и редактирование комментария
-        path("comments/toggle-like/<str:commentID>", viewsComments.toggle_like, name="like") # Установка и удаления лайка поста 
+        path("comments/toggle-like/<str:commentID>", viewsComments.toggle_like, name="like"), # Установка и удаления лайка поста 
+
+        #
+        path("tags", viewsPosts.get_tags, name="tags")
 ]
