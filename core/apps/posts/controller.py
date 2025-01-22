@@ -1,3 +1,4 @@
+import random
 from templates.answer import answer_dict as message
 from services.authService import Authorization
 from django.http.multipartparser import MultiPartParser
@@ -5,6 +6,7 @@ from apps.posts.models import Post
 from services.encriptionService import Encriptions
 from services.parserService import Separement
 from services.logService import LogException
+from django.db.models import Q
 
 
 def create_post(request):
@@ -86,20 +88,25 @@ def edit_post_by_id(request, post_id):
 
 def search_posts(request):
     # Получаем query параметры offset и limit из запроса
-    offset, limit = Separement.pagination_parametrs(request)
+    offset, limit, search = Separement.pagination_parametrs(request, "search")
 
     # Формирование тэгов для выборки постов
-    cookie_user = Authorization.is_authorization(request)
-    if isinstance(cookie_user, dict): tags_user = []
-    else: tags_user = cookie_user.tags_user
+    if not search:
+        cookie_user = Authorization.is_authorization(request)
+        if isinstance(cookie_user, dict): tags_search = []
+        else: tags_search = cookie_user.tags_user
+
+    else: 
+        tags_search = search.split(",")
+
 
     # Получаем посты из базы данных с учетом тегов, offset и limit
     try: 
-        result = Post.get_posts(tags_user, offset, limit)
+        result = Post.get_posts(tags_search, offset, limit)
     
     except Exception as er: 
         LogException.write_data(er, "97", "posts -- controller", "Ошибка при обращении к модели", "search_posts", 
-                    "warning", f"tags: {tags_user} -- offset: {offset} -- limit {limit}", "posts/", "GET", "500")
+                    "warning", f"tags: {tags_search} -- offset: {offset} -- limit {limit}", "posts/", "GET", "500")
 
         return message[500]
 
@@ -173,4 +180,43 @@ def get_post_by_id(request, post_id):
         
         return message[500]
     
+    return response
+
+
+def get_all_tags(request):
+    # Получаем query-параметры
+    tag_name = request.GET.get('tag_name', '').strip()
+    limit_search = int(request.GET.get('limitSearch', 30))  # Ограничение на searchTags
+    limit_recommended = int(request.GET.get('limitRecommended', 30))  # Ограничение на recommendedTags
+
+    # Инициализируем массивы для ответа
+    search_tags = []
+    recommended_tags = []
+
+    # Если tag_name указан (не пустая строка), ищем теги с его участием
+    if tag_name:
+        similar_tags = Post.objects.filter(tags_list__icontains=tag_name).values_list('tags_list', flat=True)
+        unique_similar_tags = set()
+        for tags in similar_tags:
+            unique_similar_tags.update([tag for tag in tags if tag_name.lower() in tag.lower()])
+        
+        # Применяем лимит
+        search_tags = list(unique_similar_tags)[:limit_search]
+
+    # Получаем все уникальные теги для рекомендаций
+    all_tags = set()
+    all_db_tags = Post.objects.values_list('tags_list', flat=True)
+    for tags in all_db_tags:
+        if tags:
+            all_tags.update(tags)
+
+    # Выбираем случайные уникальные теги для рекомендаций
+    recommended_tags = random.sample(all_tags, min(len(all_tags), 30))[:limit_recommended]
+
+    # Формируем ответ
+    response = {
+        "searchTags": search_tags,
+        "recommendedTags": recommended_tags
+    }
+
     return response
