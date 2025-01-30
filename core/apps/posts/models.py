@@ -80,7 +80,7 @@ class Post(models.Model):
             return response
 
         # Установка новых данных
-        if data["postName"]: post.name = data["postName"]
+        if data["postName"]: post.post_name = data["postName"]
         if data["description"]: post.description = data["description"]
         if data["link"]: post.link = data["link"]
         if data["aspectRatio"]: post.aspect_ratio = data["aspectRatio"]
