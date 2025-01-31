@@ -12,6 +12,7 @@ urlpatterns = [
     path("users/private-profile", viewsUsers.privateProfile, name="privateProfile"), # Получение профиля по Cookie
     path("users/public-profile/<str:userID>", viewsUsers.publicProfile, name="publicProfile"), # Получение профиля по ID
     path("users/<str:userID>/created-posts", viewsUsers.usersCreatedPosts, name="userCreatedPosts"), # Список постов пользователя
+    path("users/avatar", viewsUsers.deleteAvatar, name="delete_avatar"), # Удаление аватара пользователя
 
     # dashboards
     path("dashboards", viewsDashboards.dashboards, name='dashboards'), # Создание и получение досок

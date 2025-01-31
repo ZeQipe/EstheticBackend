@@ -20,7 +20,7 @@ class Post(models.Model):
     url_blur = models.TextField(unique=True)
     tags_list = models.JSONField(default=list)
     aspect_ratio = models.TextField(blank=True, null=True)
-    link = models.CharField(max_length=100, null=True)
+    link = models.CharField(max_length=200, null=True)
     created_at = models.DateTimeField(default=timezone.now)
 
 
@@ -212,7 +212,7 @@ class Post(models.Model):
             'postName': r'^.{2,60}$',  # Название поста от 2 до 60 символов
             'description': r'^.{0,600}$',  # Описание до 600 символов (может быть пустым)
             'aspectRatio': r'^.*$',  # Любая строка
-            'link': r'^.{0,100}$'  # Ссылка до 100 символов
+            'link': r'^.{0,200}$'  # Ссылка до 100 символов
         }
 
         # Список обязательных полей для режима "create"

@@ -69,7 +69,10 @@ def dashboards_param(request, boardID):
     elif request.method == "POST": response = add_post_in_board(request, boardID)                               
 
     # Удаление доски
-    elif request.method == "DELETE": response = DeletterObject.del_object(request, Board, boardID)              
+    elif request.method == "DELETE": response = DeletterObject.del_object(request, Board, boardID)
+
+    # Редактирование доски
+    elif request.method == "PUT": response = put_dashboards_name(request, boardID)              
 
     else: 
         response = message[405]

@@ -267,3 +267,45 @@ def add_post_in_board(request, board_id: str) -> dict:
         return message[500]
     
     return message[200]
+
+
+def put_dashboards_name(request, board_id: str):
+    # Проверка авторизации пользователя
+    cookie_user = Authorization.is_authorization(request)
+    if isinstance(cookie_user, dict): 
+        LogException.write_data("Попытка изменить доску без авторизации", "218", "dashboards -- controller", "Ошибка авторизации", 
+                        "add_post_in_board", "info", f"cookie_user: {type(cookie_user)}", "dashboards/<str:boardID>", "POST", "401")
+
+    # Поиск поста и доски в базе данных
+    try:
+        board = Board.objects.get(id=board_id, author=cookie_user)
+
+    except Exception as er: 
+        LogException.write_data(er, "236", "dashboards -- controller", "Ошибка при обращении к базе данных", 
+                                "add_post_in_board", "info", f"board_id: {board_id}", 
+                                "dashboards/<str:boardID>", "POST", "404")
+        
+        return message[404]
+
+    # Извлечение данных из запроса
+    request_data = json.loads(request.body)
+    boardName = request_data.get("dashboardName", False)
+    if not boardName: 
+        LogException.write_data("Отсутсвует имя доски", "282", "dashboards -- controller", "Ошибка при обработке запроса", 
+                                "create_dashboards", "info", request.body, "dashboards/", "POST", "400")
+        
+        return message[400]
+    
+    mess = board.edit_name(boardName)
+
+    if mess:
+        message_response = message[200]
+        message_response["userId"] = cookie_user.id
+        message_response["dashboardId"] = board.id
+
+        return message_response
+    
+    else:
+        return message[400]
+
+    

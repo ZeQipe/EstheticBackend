@@ -59,6 +59,17 @@ class Board(models.Model):
 
         # Если совпадений нет
         return False
+    
+
+    def edit_name(self, boardNewName):
+        if boardNewName != "" and len(boardNewName) <= 35 and boardNewName != self.name:
+            self.name = boardNewName
+            self.save()
+
+            return True
+        
+        else:
+            return False
 
 
 class BoardPost(models.Model):

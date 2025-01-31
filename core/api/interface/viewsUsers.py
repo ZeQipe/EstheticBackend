@@ -140,3 +140,16 @@ def check_auth(request):
         return JsonResponse(response, status=response.get("status", 200))
         
     except Exception: return  JsonResponse({"isAuth": False}, status=200)
+
+
+@csrf_exempt
+def deleteAvatar(request):
+    if request.method == "DELETE":
+        response = message[200]
+
+    else: 
+        response = message[405]
+        LogException.write_data("Не существующий метод", "135", "viewsUsers", "Не верный метод", "check_auth", "info", 
+                                request, "auth/check", f"запрос с методом - {request.method}", "405")
+    
+    return JsonResponse(response, status=response.get("status", 200))
