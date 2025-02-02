@@ -157,3 +157,17 @@ class User(models.Model):
                 return False, 'Ошибка запроса. Имя пользователя уже занято'
 
         return True, "All data correct"
+
+
+    def delete_avatars(self):
+        if Media.delete_media(self.avatar) and Media.delete_media(self.avatar_blur):
+            self.avatar = None
+            self.avatar_blur = None
+            self.save()
+
+            return True
+        
+        else:
+            return False
+
+        

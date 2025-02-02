@@ -71,9 +71,9 @@ class Media:
         os.makedirs(os.path.dirname(thumbnail_path), exist_ok=True)
 
         # Настройки для размытия и уменьшения изображения
-        blur_radius = 5  # Радиус размытия. Чем больше значение, тем сильнее размытие.
+        blur_radius = 15  # Радиус размытия. Чем больше значение, тем сильнее размытие.
         size = (160, 320)   # Размер миниатюры. Определяет ширину и высоту итогового изображения.
-        quality = 5      # Качество миниатюры (1-100). Чем меньше число, тем сильнее сжатие и хуже качество, но меньше размер файла.
+        quality = 2      # Качество миниатюры (1-100). Чем меньше число, тем сильнее сжатие и хуже качество, но меньше размер файла.
 
         # Обрабатываем изображение и создаем миниатюру
         with Image.open(file) as img:
@@ -151,3 +151,27 @@ class Media:
             'date_create': date_created,
             'proportions': f'{width}x{height}' if width != 'N/A' else 'N/A'
         }
+    
+
+    @classmethod
+    def delete_media(cls, file_path: str) -> bool:
+        """
+        Удаление одного медиафайла (изображения или миниатюры).
+        
+        :param file_path: Относительный путь к файлу.
+        :return: True, если файл успешно удален, иначе False.
+        """
+
+        # Полный путь к файлу
+        full_file_path = os.path.join(settings.MEDIA_ROOT, file_path)
+
+        # Проверка существования файла
+        if not os.path.exists(full_file_path):
+            return False, f"Файл не найден: {full_file_path}"
+
+        # Попытка удаления файла
+        try:
+            os.remove(full_file_path)
+        except Exception as e:
+            return False, f"Ошибка удаления файла {full_file_path}: {str(e)}"
+        return True

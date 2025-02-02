@@ -153,3 +153,20 @@ def user_created_post_list(request, userID):
         return message[500]
     
     return response
+
+
+def delete_users_avatar(request):
+    # Проверка на авторизацию пользователя
+    cookie_user = Authorization.is_authorization(request)
+    if isinstance(cookie_user, dict): 
+        LogException.write_data("Попытка изменить данные не своего аккаунта", "100", "user -- controller", "Ошибка авторизации", 
+                                "edit_user_data", "info", f"user_profile_type: {type(cookie_user)} -- {cookie_user}", "users/", "PUT", "401")
+        
+    if not cookie_user.avatar:
+        return message[400]
+    
+    if cookie_user.delete_avatars():
+        return message[200]
+    
+    else:
+        return message[500]

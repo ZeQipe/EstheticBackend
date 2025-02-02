@@ -145,7 +145,7 @@ def check_auth(request):
 @csrf_exempt
 def deleteAvatar(request):
     if request.method == "DELETE":
-        response = message[200]
+        response = delete_users_avatar(request)
 
     else: 
         response = message[405]

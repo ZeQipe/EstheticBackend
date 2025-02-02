@@ -153,7 +153,10 @@ def toggle_like(request, postID):
         LogException.write_data(er, "136", "posts -- controller", "Ошибка при обращении к базе данных", 
                 "toggle_like", "warning", f"postID: {postID}", "posts/toggle-like/<str:ID>", "PUT", "404")
 
-    return message[200]
+    message_responce = message[200]
+    message_responce["postId"] = post.id
+    
+    return message_responce
 
 
 def get_post_by_id(request, post_id):

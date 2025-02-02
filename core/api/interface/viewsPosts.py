@@ -23,9 +23,9 @@ def posts(request):
 
 
 @csrf_exempt
-def posts_toggle_like(request, postID):
+def posts_toggle_like(request, ID):
     # Установка лайка посту
-    if request.method == "PUT": response = toggle_like(request, postID)
+    if request.method == "PUT": response = toggle_like(request, ID)
 
     else: 
         LogException.write_data("Не существующий метод", "30", "viewsPosts", "Не верный метод", "posts_toggle_like", "info", 
